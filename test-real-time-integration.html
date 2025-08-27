@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .input-section {
+            display: flex;
+            flex-direction: column;
+        }
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            font-family: monospace;
+            font-size: 14px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            max-width: 100%;
+            height: auto;
+        }
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f5f5f5;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #e5e5e5;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Real-Time Ocarina Chart Preview Test</h1>
+    <p>Type song notation in the text area to see the fingering chart update in real-time.</p>
+    
+    <div class="container">
+        <div class="input-section">
+            <h3>Song Notation Input</h3>
+            <textarea id="songInput" placeholder="Loading..."></textarea>
+            <div class="controls">
+                <button id="clearBtn">Clear</button>
+                <button id="exampleBtn">Load Example</button>
+            </div>
+            <div id="status" class="status" style="display: none;"></div>
+        </div>
+        
+        <div class="preview-section">
+            <h3>Chart Preview</h3>
+            <canvas id="chartCanvas" width="800" height="600"></canvas>
+            <div class="controls">
+                <button id="exportBtn" disabled>Export PNG</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { RealTimeApp } from './src/ui/RealTimeApp.js';
+
+        // Get DOM elements
+        const textArea = document.getElementById('songInput');
+        const canvas = document.getElementById('chartCanvas');
+        const clearBtn = document.getElementById('clearBtn');
+        const exampleBtn = document.getElementById('exampleBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const status = document.getElementById('status');
+
+        // Example song
+        const exampleSong = `Simple Melody
+F G A F
+G A C D`;
+
+        // Status display function
+        function showStatus(message, type = 'success') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize the real-time app
+        const app = new RealTimeApp(textArea, canvas, {
+            onSongChanged: (song) => {
+                exportBtn.disabled = !song;
+                if (song) {
+                    showStatus(`Chart updated: "${song.title}" (${song.metadata?.noteCount} notes)`);
+                }
+            },
+            onValidationChanged: (result) => {
+                if (!result.isValid) {
+                    const errorCount = result.errors.length;
+                    showStatus(`${errorCount} validation error${errorCount > 1 ? 's' : ''} found`, 'error');
+                }
+            },
+            onError: (error) => {
+                showStatus(`Error: ${error.message}`, 'error');
+            },
+            onTextChanged: (text) => {
+                // Update export button state
+                exportBtn.disabled = !text.trim();
+            }
+        });
+
+        // Set up event handlers
+        clearBtn.addEventListener('click', () => {
+            app.clear();
+            showStatus('Input cleared');
+        });
+
+        exampleBtn.addEventListener('click', () => {
+            app.setText(exampleSong);
+            showStatus('Example song loaded');
+        });
+
+        exportBtn.addEventListener('click', () => {
+            try {
+                app.exportChart();
+                showStatus('Chart exported successfully');
+            } catch (error) {
+                showStatus(`Export failed: ${error.message}`, 'error');
+            }
+        });
+
+        // Ready message
+        setTimeout(() => {
+            showStatus('Ready! Try editing the song notation.');
+        }, 100);
+
+        console.log('Real-time integration test loaded successfully');
+    </script>
+</body>
+</html>

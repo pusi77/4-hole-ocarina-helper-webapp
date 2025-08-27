@@ -1,0 +1,312 @@
+/**
+ * Performance-optimized CSS
+ * Includes optimizations for rendering performance and memory usage
+ */
+
+/* Hardware acceleration for smooth animations */
+.loading-overlay,
+.loading-spinner,
+.notification,
+.error-highlight {
+  will-change: transform, opacity;
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
+/* Optimize canvas rendering */
+canvas {
+  /* Prevent unnecessary repaints */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  
+  /* Prevent selection to avoid repaints */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Optimize for performance */
+  pointer-events: auto;
+}
+
+/* Loading states - optimized animations */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  /* Use transform instead of changing properties */
+  border: 4px solid transparent;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Optimize text rendering */
+.input-area,
+.preview-area,
+.notification-text {
+  /* Optimize text rendering */
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Performance-optimized transitions */
+.notification {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification.entering {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.notification.entered {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.notification.exiting {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+/* Optimize layout calculations */
+.app-container {
+  /* Use flexbox for efficient layout */
+  display: flex;
+  /* Prevent layout thrashing */
+  contain: layout style;
+}
+
+.input-section,
+.preview-section {
+  /* Optimize repaints */
+  contain: layout style paint;
+  /* Use transform for positioning when possible */
+  transform: translateZ(0);
+}
+
+/* Memory-efficient scrolling */
+.scrollable-content {
+  /* Use momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Optimize scrolling performance */
+  overflow-anchor: none;
+  /* Contain scroll-related repaints */
+  contain: layout style paint;
+}
+
+/* Optimize for mobile performance */
+@media (max-width: 768px) {
+  /* Reduce complexity on mobile */
+  .loading-overlay {
+    backdrop-filter: none; /* Remove expensive blur on mobile */
+    background: rgba(255, 255, 255, 0.95);
+  }
+  
+  /* Optimize touch interactions */
+  .touch-target {
+    /* Larger touch targets for better performance */
+    min-height: 44px;
+    min-width: 44px;
+    /* Optimize touch response */
+    touch-action: manipulation;
+  }
+  
+  /* Reduce animation complexity on mobile */
+  .loading-spinner {
+    animation-duration: 2s; /* Slower animation for better performance */
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  canvas {
+    /* Ensure crisp rendering on high DPI displays */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
+  }
+}
+
+/* Reduce motion for accessibility and performance */
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+  }
+  
+  .notification {
+    transition: none;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Performance monitoring display */
+.performance-monitor {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  z-index: 10001;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.performance-monitor:hover {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.performance-monitor.warning {
+  background: rgba(255, 193, 7, 0.9);
+  color: black;
+}
+
+.performance-monitor.critical {
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+}
+
+/* Memory usage indicator */
+.memory-usage-bar {
+  width: 100px;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 2px 0;
+}
+
+.memory-usage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+  transition: width 0.3s ease;
+}
+
+/* Optimize for print media */
+@media print {
+  /* Hide performance monitoring elements */
+  .performance-monitor,
+  .loading-overlay,
+  .notification {
+    display: none !important;
+  }
+  
+  /* Optimize canvas for printing */
+  canvas {
+    image-rendering: auto;
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Container queries for responsive performance */
+@container (max-width: 600px) {
+  .performance-monitor {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+}
+
+/* Focus optimization */
+.focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Remove default focus styles that can cause repaints */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: none;
+}
+
+/* Custom focus styles that are performance-optimized */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  box-shadow: 0 0 0 2px #007bff;
+  transition: box-shadow 0.15s ease;
+}
+
+/* Optimize button interactions */
+button {
+  /* Prevent layout shifts on interaction */
+  transform: translateZ(0);
+  /* Optimize for touch */
+  touch-action: manipulation;
+  /* Prevent text selection */
+  user-select: none;
+}
+
+button:active {
+  /* Use transform for press effect instead of changing other properties */
+  transform: translateZ(0) scale(0.98);
+}
+
+/* Optimize input fields */
+input,
+textarea {
+  /* Optimize text input performance */
+  will-change: contents;
+  /* Prevent unnecessary repaints */
+  backface-visibility: hidden;
+}
+
+/* Loading state optimizations */
+.loading {
+  /* Prevent interactions during loading */
+  pointer-events: none;
+  /* Indicate loading state */
+  cursor: wait;
+}
+
+.loading * {
+  /* Prevent all interactions during loading */
+  pointer-events: none;
+}
+
+/* Error state optimizations */
+.error-state {
+  /* Optimize error highlighting */
+  animation: errorPulse 0.5s ease-in-out;
+}
+
+@keyframes errorPulse {
+  0%, 100% { 
+    background-color: transparent; 
+  }
+  50% { 
+    background-color: rgba(220, 53, 69, 0.1); 
+  }
+}
+
+/* Success state optimizations */
+.success-state {
+  animation: successFlash 0.3s ease-out;
+}
+
+@keyframes successFlash {
+  0%, 100% { 
+    background-color: transparent; 
+  }
+  50% { 
+    background-color: rgba(40, 167, 69, 0.1); 
+  }
+}

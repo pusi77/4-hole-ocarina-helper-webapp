@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fix - First Line Rendering</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { max-width: 800px; margin: 0 auto; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        textarea { height: 100px; font-family: monospace; }
+        canvas { border: 1px solid #ccc; margin-top: 20px; }
+        .result { margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Test: First Line Rendering Fix</h1>
+        
+        <div class="input-group">
+            <label for="title">Song Title:</label>
+            <input type="text" id="title" value="Test Song" />
+        </div>
+        
+        <div class="input-group">
+            <label for="notation">Song Notation:</label>
+            <textarea id="notation">F G A F
+G A C D</textarea>
+        </div>
+        
+        <canvas id="canvas" width="800" height="400"></canvas>
+        
+        <div class="result">
+            <h3>Expected Result:</h3>
+            <p>The chart should show <strong>both lines</strong> of notes:</p>
+            <ul>
+                <li>Line 1: F G A F</li>
+                <li>Line 2: G A C D</li>
+            </ul>
+            <p>If only the second line appears, the bug is still present.</p>
+        </div>
+        
+        <div id="debug-info" class="result">
+            <h3>Debug Info:</h3>
+            <div id="debug-content">Loading...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the built modules
+        import { RealTimeApp } from './dist/assets/js/ui-BVroXrbT.js';
+        
+        // Get DOM elements
+        const titleInput = document.getElementById('title');
+        const textArea = document.getElementById('notation');
+        const canvas = document.getElementById('canvas');
+        const debugContent = document.getElementById('debug-content');
+        
+        // Initialize the app
+        const app = new RealTimeApp(textArea, canvas, {
+            onSongChanged: (song) => {
+                console.log('Song changed:', song);
+                if (song) {
+                    debugContent.innerHTML = `
+                        <strong>Parsed Song:</strong><br>
+                        Title: ${song.title}<br>
+                        Lines: ${song.lines.length}<br>
+                        Line 1: [${song.lines[0]?.join(', ') || 'MISSING!'}]<br>
+                        Line 2: [${song.lines[1]?.join(', ') || 'N/A'}]<br>
+                        Total Notes: ${song.lines.flat().length}
+                    `;
+                } else {
+                    debugContent.innerHTML = 'No song parsed';
+                }
+            },
+            onValidationChanged: (result) => {
+                console.log('Validation:', result);
+            },
+            onError: (error) => {
+                console.error('Error:', error);
+                debugContent.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            }
+        }, {}, titleInput);
+        
+        // Trigger initial parsing
+        setTimeout(() => {
+            app.setText(textArea.value);
+        }, 100);
+        
+        // Update on input changes
+        titleInput.addEventListener('input', () => {
+            app.triggerReparse();
+        });
+        
+        textArea.addEventListener('input', () => {
+            // The app should handle this automatically
+        });
+    </script>
+</body>
+</html>
