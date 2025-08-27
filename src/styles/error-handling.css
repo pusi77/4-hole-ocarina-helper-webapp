@@ -404,25 +404,25 @@
     right: 20px;
     max-width: none;
   }
-  
+
   .notification {
     transform: translateY(-100%);
     animation: slideInMobile 0.3s ease-out forwards;
   }
-  
+
   .notification.notification-hiding {
     animation: slideOutMobile 0.3s ease-in forwards;
   }
-  
+
   .error-highlight-tooltip {
     max-width: 250px;
     font-size: 11px;
   }
-  
+
   .error-highlighter-textarea.with-line-numbers {
     padding-left: 45px;
   }
-  
+
   .error-highlight-gutter {
     width: 40px;
   }
@@ -456,36 +456,36 @@
     border-width: 2px;
     border-style: solid;
   }
-  
+
   .notification-error {
     border-color: #e53e3e;
     background: white;
     color: #e53e3e;
   }
-  
+
   .notification-warning {
     border-color: #d69e2e;
     background: white;
     color: #d69e2e;
   }
-  
+
   .notification-success {
     border-color: #38a169;
     background: white;
     color: #38a169;
   }
-  
+
   .notification-info {
     border-color: #3182ce;
     background: white;
     color: #3182ce;
   }
-  
+
   .error-highlight-error {
     background: rgba(229, 62, 62, 0.4);
     border-width: 2px;
   }
-  
+
   .error-highlight-warning {
     background: rgba(214, 158, 46, 0.4);
     border-width: 2px;
@@ -503,7 +503,7 @@
     animation: none;
     transition: none;
   }
-  
+
   .error-handling-loading::after {
     animation: none;
   }

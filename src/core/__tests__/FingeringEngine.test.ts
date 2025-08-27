@@ -1,6 +1,6 @@
 /**
  * Unit tests for FingeringEngine
- * 
+ *
  * Tests the fingering pattern database and engine functionality
  * according to requirements 3.4 and 2.4
  */
@@ -21,7 +21,7 @@ describe('FingeringEngine', () => {
       const pattern = engine.getPattern('F');
       expect(pattern).toEqual({
         note: 'F',
-        holes: [true, true, true, true]
+        holes: [true, true, true, true],
       });
     });
 
@@ -29,7 +29,7 @@ describe('FingeringEngine', () => {
       const pattern = engine.getPattern('G');
       expect(pattern).toEqual({
         note: 'G',
-        holes: [true, false, true, true]
+        holes: [true, false, true, true],
       });
     });
 
@@ -37,7 +37,7 @@ describe('FingeringEngine', () => {
       const pattern = engine.getPattern('A');
       expect(pattern).toEqual({
         note: 'A',
-        holes: [true, true, true, false]
+        holes: [true, true, true, false],
       });
     });
 
@@ -45,7 +45,7 @@ describe('FingeringEngine', () => {
       const pattern = engine.getPattern('Bb');
       expect(pattern).toEqual({
         note: 'Bb',
-        holes: [true, false, true, false]
+        holes: [true, false, true, false],
       });
     });
 
@@ -53,7 +53,7 @@ describe('FingeringEngine', () => {
       const pattern = engine.getPattern('C');
       expect(pattern).toEqual({
         note: 'C',
-        holes: [false, false, true, true]
+        holes: [false, false, true, true],
       });
     });
 
@@ -61,7 +61,7 @@ describe('FingeringEngine', () => {
       const pattern = engine.getPattern('D');
       expect(pattern).toEqual({
         note: 'D',
-        holes: [false, false, true, false]
+        holes: [false, false, true, false],
       });
     });
 
@@ -69,7 +69,7 @@ describe('FingeringEngine', () => {
       const pattern = engine.getPattern('E');
       expect(pattern).toEqual({
         note: 'E',
-        holes: [false, true, false, false]
+        holes: [false, true, false, false],
       });
     });
 
@@ -84,7 +84,7 @@ describe('FingeringEngine', () => {
       const pattern = engine.getPattern(' F ');
       expect(pattern).toEqual({
         note: 'F',
-        holes: [true, true, true, true]
+        holes: [true, true, true, true],
       });
     });
   });
@@ -114,14 +114,14 @@ describe('FingeringEngine', () => {
 
   describe('isSupported', () => {
     it('should return true for all supported notes', () => {
-      SUPPORTED_NOTES.forEach(note => {
+      SUPPORTED_NOTES.forEach((note) => {
         expect(engine.isSupported(note)).toBe(true);
       });
     });
 
     it('should return false for unsupported notes', () => {
       const unsupportedNotes = ['B', 'Db', 'Eb', 'Gb', 'Ab', 'X', 'Y', 'Z'];
-      unsupportedNotes.forEach(note => {
+      unsupportedNotes.forEach((note) => {
         expect(engine.isSupported(note)).toBe(false);
       });
     });
@@ -220,9 +220,9 @@ describe('FingeringEngine', () => {
   describe('fingering pattern accuracy', () => {
     it('should have exactly 4 holes for each pattern', () => {
       const patterns = engine.getAllPatterns();
-      Object.values(patterns).forEach(pattern => {
+      Object.values(patterns).forEach((pattern) => {
         expect(pattern.holes).toHaveLength(4);
-        pattern.holes.forEach(hole => {
+        pattern.holes.forEach((hole) => {
           expect(typeof hole).toBe('boolean');
         });
       });
@@ -230,7 +230,9 @@ describe('FingeringEngine', () => {
 
     it('should have unique patterns for each note', () => {
       const patterns = engine.getAllPatterns();
-      const patternStrings = Object.values(patterns).map(p => p.holes.join(''));
+      const patternStrings = Object.values(patterns).map((p) =>
+        p.holes.join('')
+      );
       const uniquePatterns = new Set(patternStrings);
       expect(uniquePatterns.size).toBe(Object.keys(patterns).length);
     });
@@ -238,25 +240,25 @@ describe('FingeringEngine', () => {
     it('should match exact requirements from specification', () => {
       // Requirement 3.4: exact fingering patterns
       const patterns = engine.getAllPatterns();
-      
+
       // F: all covered
-      expect(patterns.F.holes.every(hole => hole === true)).toBe(true);
-      
+      expect(patterns.F.holes.every((hole) => hole === true)).toBe(true);
+
       // G: top-left, bottom-left, bottom-right
       expect(patterns.G.holes).toEqual([true, false, true, true]);
-      
+
       // A: top-left, top-right, bottom-left
       expect(patterns.A.holes).toEqual([true, true, true, false]);
-      
+
       // Bb: top-left, bottom-left
       expect(patterns.Bb.holes).toEqual([true, false, true, false]);
-      
+
       // C: bottom-left, bottom-right
       expect(patterns.C.holes).toEqual([false, false, true, true]);
-      
+
       // D: bottom-left only
       expect(patterns.D.holes).toEqual([false, false, true, false]);
-      
+
       // E: top-right only
       expect(patterns.E.holes).toEqual([false, true, false, false]);
     });
@@ -265,7 +267,15 @@ describe('FingeringEngine', () => {
   describe('singleton instance', () => {
     it('should provide a default singleton instance', () => {
       expect(fingeringEngine).toBeInstanceOf(FingeringEngine);
-      expect(fingeringEngine.getSupportedNotes()).toEqual(['F', 'G', 'A', 'Bb', 'C', 'D', 'E']);
+      expect(fingeringEngine.getSupportedNotes()).toEqual([
+        'F',
+        'G',
+        'A',
+        'Bb',
+        'C',
+        'D',
+        'E',
+      ]);
     });
 
     it('should return same patterns as new instance', () => {
@@ -291,7 +301,7 @@ describe('FingeringEngine', () => {
 
     it('should provide meaningful suggestions for common mistakes', () => {
       const result = engine.validateNotes(['Db', 'Eb', 'Gb', 'Ab']);
-      result.errors.forEach(error => {
+      result.errors.forEach((error) => {
         expect(error.suggestions).toBeDefined();
         expect(error.suggestions!.length).toBeGreaterThan(0);
       });

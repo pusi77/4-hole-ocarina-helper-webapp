@@ -18,7 +18,7 @@ export const EXAMPLE_SONGS: Record<ExampleCategory, ExampleSong[]> = {
       notation: `Simple Scale
 F G A Bb C D E
 E D C Bb A G F`,
-      difficulty: 'beginner'
+      difficulty: 'beginner',
     },
     {
       id: 'all-notes-test',
@@ -28,21 +28,21 @@ E D C Bb A G F`,
 F F G G A A Bb Bb
 C C D D E E
 E D C Bb A G F`,
-      difficulty: 'beginner'
-    }
+      difficulty: 'beginner',
+    },
   ],
 
   [ExampleCategory.SIMPLE_SONGS]: [
     {
       id: 'mary-had-little-lamb',
       title: 'Mary Had a Little Lamb',
-      description: 'Classic children\'s song with simple melody',
+      description: "Classic children's song with simple melody",
       notation: `Mary Had a Little Lamb
 A G F G A A A
 G G G A C C
 A G F G A A A
 G G A G F`,
-      difficulty: 'beginner'
+      difficulty: 'beginner',
     },
     {
       id: 'twinkle-twinkle',
@@ -55,8 +55,8 @@ G G F F E E D
 G G F F E E D
 C C G G A A G
 F F E E D D C`,
-      difficulty: 'beginner'
-    }
+      difficulty: 'beginner',
+    },
   ],
 
   [ExampleCategory.POPULAR_SONGS]: [
@@ -67,7 +67,7 @@ F F E E D D C`,
       notation: `Simple Melody
 F G A F
 G A C D`,
-      difficulty: 'beginner'
+      difficulty: 'beginner',
     },
     {
       id: 'song-of-time',
@@ -76,8 +76,8 @@ G A C D`,
       notation: `Song of Time
 A D F A D F
 A D F A D F`,
-      difficulty: 'intermediate'
-    }
+      difficulty: 'intermediate',
+    },
   ],
 
   [ExampleCategory.TESTS]: [
@@ -89,7 +89,7 @@ A D F A D F`,
 F G A B C D E
 B B B A A A
 C B A G F`,
-      difficulty: 'beginner'
+      difficulty: 'beginner',
     },
     {
       id: 'complex-rhythm',
@@ -101,9 +101,9 @@ Bb C D E
 F F G G A A
 Bb Bb C C D D E E
 F G A Bb C D E F G A`,
-      difficulty: 'intermediate'
-    }
-  ]
+      difficulty: 'intermediate',
+    },
+  ],
 };
 
 /**
@@ -116,7 +116,9 @@ export function getAllExampleSongs(): ExampleSong[] {
 /**
  * Get example songs by category
  */
-export function getExamplesByCategory(category: ExampleCategory): ExampleSong[] {
+export function getExamplesByCategory(
+  category: ExampleCategory
+): ExampleSong[] {
   return EXAMPLE_SONGS[category] || [];
 }
 
@@ -124,14 +126,16 @@ export function getExamplesByCategory(category: ExampleCategory): ExampleSong[] 
  * Get example song by ID
  */
 export function getExampleById(id: string): ExampleSong | undefined {
-  return getAllExampleSongs().find(song => song.id === id);
+  return getAllExampleSongs().find((song) => song.id === id);
 }
 
 /**
  * Get example songs by difficulty
  */
-export function getExamplesByDifficulty(difficulty: ExampleSong['difficulty']): ExampleSong[] {
-  return getAllExampleSongs().filter(song => song.difficulty === difficulty);
+export function getExamplesByDifficulty(
+  difficulty: ExampleSong['difficulty']
+): ExampleSong[] {
+  return getAllExampleSongs().filter((song) => song.difficulty === difficulty);
 }
 
 /**
@@ -139,8 +143,9 @@ export function getExamplesByDifficulty(difficulty: ExampleSong['difficulty']): 
  */
 export function searchExamples(query: string): ExampleSong[] {
   const lowercaseQuery = query.toLowerCase();
-  return getAllExampleSongs().filter(song => 
-    song.title.toLowerCase().includes(lowercaseQuery) ||
-    song.description.toLowerCase().includes(lowercaseQuery)
+  return getAllExampleSongs().filter(
+    (song) =>
+      song.title.toLowerCase().includes(lowercaseQuery) ||
+      song.description.toLowerCase().includes(lowercaseQuery)
   );
 }

@@ -41,7 +41,7 @@ export class MemoryMonitor {
     thresholds: MemoryThresholds = {
       warning: 70,
       critical: 85,
-      cleanup: 80
+      cleanup: 80,
     }
   ) {
     this.events = events;
@@ -98,14 +98,15 @@ export class MemoryMonitor {
     }
 
     const memory = (performance as any).memory;
-    const usedPercentage = (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100;
+    const usedPercentage =
+      (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100;
 
     return {
       usedJSHeapSize: memory.usedJSHeapSize,
       totalJSHeapSize: memory.totalJSHeapSize,
       jsHeapSizeLimit: memory.jsHeapSizeLimit,
       usedPercentage,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 
@@ -149,9 +150,9 @@ export class MemoryMonitor {
    */
   private triggerCleanup(usage: MemoryUsage): void {
     console.log('MemoryMonitor: Triggering cleanup due to high memory usage');
-    
+
     // Execute all registered cleanup callbacks
-    this.cleanupCallbacks.forEach(callback => {
+    this.cleanupCallbacks.forEach((callback) => {
       try {
         callback();
       } catch (error) {
@@ -174,7 +175,7 @@ export class MemoryMonitor {
    */
   registerCleanupCallback(callback: () => void): () => void {
     this.cleanupCallbacks.push(callback);
-    
+
     // Return unregister function
     return () => {
       const index = this.cleanupCallbacks.indexOf(callback);
@@ -201,30 +202,33 @@ export class MemoryMonitor {
     trend: 'increasing' | 'decreasing' | 'stable';
   } {
     const current = this.getCurrentMemoryUsage();
-    
+
     if (this.memoryHistory.length === 0) {
       return {
         current,
         average: current?.usedPercentage || 0,
         peak: current?.usedPercentage || 0,
-        trend: 'stable'
+        trend: 'stable',
       };
     }
 
-    const usageValues = this.memoryHistory.map(h => h.usedPercentage);
-    const average = usageValues.reduce((sum, val) => sum + val, 0) / usageValues.length;
+    const usageValues = this.memoryHistory.map((h) => h.usedPercentage);
+    const average =
+      usageValues.reduce((sum, val) => sum + val, 0) / usageValues.length;
     const peak = Math.max(...usageValues);
 
     // Calculate trend based on recent history
     let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
     if (this.memoryHistory.length >= 5) {
       const recent = this.memoryHistory.slice(-5);
-      const firstHalf = recent.slice(0, 2).map(h => h.usedPercentage);
-      const secondHalf = recent.slice(-2).map(h => h.usedPercentage);
-      
-      const firstAvg = firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
-      const secondAvg = secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
-      
+      const firstHalf = recent.slice(0, 2).map((h) => h.usedPercentage);
+      const secondHalf = recent.slice(-2).map((h) => h.usedPercentage);
+
+      const firstAvg =
+        firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
+      const secondAvg =
+        secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
+
       const difference = secondAvg - firstAvg;
       if (difference > 2) {
         trend = 'increasing';
@@ -237,7 +241,7 @@ export class MemoryMonitor {
       current,
       average,
       peak,
-      trend
+      trend,
     };
   }
 
@@ -270,17 +274,25 @@ export class MemoryMonitor {
     }
 
     if (stats.current.usedPercentage > this.thresholds.critical) {
-      recommendations.push('Critical memory usage detected. Consider reducing song complexity or clearing cache.');
+      recommendations.push(
+        'Critical memory usage detected. Consider reducing song complexity or clearing cache.'
+      );
     } else if (stats.current.usedPercentage > this.thresholds.warning) {
-      recommendations.push('High memory usage detected. Monitor performance and consider cleanup.');
+      recommendations.push(
+        'High memory usage detected. Monitor performance and consider cleanup.'
+      );
     }
 
     if (stats.trend === 'increasing') {
-      recommendations.push('Memory usage is increasing. Check for memory leaks or excessive caching.');
+      recommendations.push(
+        'Memory usage is increasing. Check for memory leaks or excessive caching.'
+      );
     }
 
     if (stats.peak > 90) {
-      recommendations.push('Peak memory usage is very high. Consider implementing more aggressive cleanup.');
+      recommendations.push(
+        'Peak memory usage is very high. Consider implementing more aggressive cleanup.'
+      );
     }
 
     if (recommendations.length === 0) {
@@ -318,7 +330,9 @@ export class MemoryMonitor {
       }
 
       const used = MemoryMonitor.formatMemorySize(stats.current.usedJSHeapSize);
-      const limit = MemoryMonitor.formatMemorySize(stats.current.jsHeapSizeLimit);
+      const limit = MemoryMonitor.formatMemorySize(
+        stats.current.jsHeapSizeLimit
+      );
       const percentage = stats.current.usedPercentage.toFixed(1);
 
       container.innerHTML = `
@@ -387,8 +401,10 @@ export const globalMemoryMonitor = new MemoryMonitor({
     console.error(`Critical memory usage: ${usage.usedPercentage.toFixed(1)}%`);
   },
   onMemoryCleanup: (usage) => {
-    console.log(`Memory cleanup triggered at ${usage.usedPercentage.toFixed(1)}%`);
-  }
+    console.log(
+      `Memory cleanup triggered at ${usage.usedPercentage.toFixed(1)}%`
+    );
+  },
 });
 
 /**
@@ -400,10 +416,10 @@ export const MemoryUtils = {
    */
   estimateSongMemoryUsage: (song: { lines: string[][] }): number => {
     let totalNotes = 0;
-    song.lines.forEach(line => {
+    song.lines.forEach((line) => {
       totalNotes += line.length;
     });
-    
+
     // Rough estimate: each note requires about 1KB for rendering and caching
     return totalNotes * 1024;
   },
@@ -416,8 +432,9 @@ export const MemoryUtils = {
     if (!currentUsage) return false;
 
     const estimatedUsage = MemoryUtils.estimateSongMemoryUsage(song);
-    const availableMemory = currentUsage.jsHeapSizeLimit - currentUsage.usedJSHeapSize;
-    
+    const availableMemory =
+      currentUsage.jsHeapSizeLimit - currentUsage.usedJSHeapSize;
+
     return estimatedUsage > availableMemory * 0.5; // Use only 50% of available memory
   },
 
@@ -429,18 +446,24 @@ export const MemoryUtils = {
     const totalNotes = song.lines.reduce((sum, line) => sum + line.length, 0);
 
     if (totalNotes > 1000) {
-      recommendations.push('Large song detected. Consider processing in smaller chunks.');
+      recommendations.push(
+        'Large song detected. Consider processing in smaller chunks.'
+      );
     }
 
     if (MemoryUtils.isSongTooLarge(song)) {
-      recommendations.push('Song may exceed available memory. Consider reducing complexity.');
+      recommendations.push(
+        'Song may exceed available memory. Consider reducing complexity.'
+      );
     }
 
     const currentUsage = globalMemoryMonitor.getCurrentMemoryUsage();
     if (currentUsage && currentUsage.usedPercentage > 70) {
-      recommendations.push('High memory usage detected. Clear cache before processing.');
+      recommendations.push(
+        'High memory usage detected. Clear cache before processing.'
+      );
     }
 
     return recommendations;
-  }
+  },
 };

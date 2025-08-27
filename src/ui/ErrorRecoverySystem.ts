@@ -3,10 +3,7 @@
  * Provides automatic recovery, state backup/restore, and error boundary functionality
  */
 
-import type { 
-  ValidationError, 
-  AppState 
-} from '../types/index.js';
+import type { ValidationError, AppState } from '../types/index.js';
 import { ErrorType } from '../types/index.js';
 
 /**
@@ -44,17 +41,17 @@ export interface RecoveryAttempt {
   success: boolean;
   correctedText?: string;
   failureReason?: string;
-  
+
   // Recovery metrics
   timeToRecover?: number;
-  
+
   // Description for accessibility
   description: string;
-  
+
   // Previous and new state for state recovery
   previousState?: Partial<AppState>;
   newState?: Partial<AppState>;
-  
+
   // Suggestion offered to user
   suggestion?: string;
 }
@@ -78,7 +75,7 @@ export enum RecoveryStrategy {
   CLEAR_INVALID_LINES = 'clear_invalid_lines',
   AUTO_FIX_NOTES = 'auto_fix_notes',
   PARTIAL_RECOVERY = 'partial_recovery',
-  MANUAL_INTERVENTION = 'manual_intervention'
+  MANUAL_INTERVENTION = 'manual_intervention',
 }
 
 /**
@@ -86,7 +83,10 @@ export enum RecoveryStrategy {
  */
 export interface ErrorRecoveryEvents {
   onRecoveryAttempted?: (attempt: RecoveryAttempt) => void;
-  onRecoverySucceeded?: (attempt: RecoveryAttempt, newState: Partial<AppState>) => void;
+  onRecoverySucceeded?: (
+    attempt: RecoveryAttempt,
+    newState: Partial<AppState>
+  ) => void;
   onRecoveryFailed?: (attempt: RecoveryAttempt) => void;
   onStateBackedUp?: (backup: StateBackup) => void;
   onStateRestored?: (backup: StateBackup) => void;
@@ -106,7 +106,10 @@ export class ErrorRecoverySystem {
   private lastValidInputText: string = '';
   private recoveryCount: number = 0;
 
-  constructor(events: ErrorRecoveryEvents = {}, config?: Partial<ErrorRecoveryConfig>) {
+  constructor(
+    events: ErrorRecoveryEvents = {},
+    config?: Partial<ErrorRecoveryConfig>
+  ) {
     this.events = events;
     this.config = {
       enableAutoRecovery: true,
@@ -116,7 +119,7 @@ export class ErrorRecoverySystem {
       maxBackupHistory: 10,
       enableErrorBoundary: true,
       fallbackToLastValidState: true,
-      ...config
+      ...config,
     };
 
     this.initialize();
@@ -145,26 +148,39 @@ export class ErrorRecoverySystem {
     error: ValidationError,
     _currentState: Partial<AppState>,
     inputText: string
-  ): Promise<RecoveryResult> {    if (!this.config.enableAutoRecovery || this.recoveryCount >= this.config.maxRecoveryAttempts) {
+  ): Promise<RecoveryResult> {
+    if (
+      !this.config.enableAutoRecovery ||
+      this.recoveryCount >= this.config.maxRecoveryAttempts
+    ) {
       return { success: false };
     }
 
     this.recoveryCount++;
 
     // Determine recovery strategy based on error type
-    const strategy = this.determineRecoveryStrategy(error, _currentState, inputText);
-    
+    const strategy = this.determineRecoveryStrategy(
+      error,
+      _currentState,
+      inputText
+    );
+
     const attempt: RecoveryAttempt = {
       timestamp: new Date(),
       error,
       strategy,
       success: false,
-      description: this.getRecoveryDescription(strategy, error)
+      description: this.getRecoveryDescription(strategy, error),
     };
 
     try {
-      const result = await this.executeRecoveryStrategy(strategy, error, _currentState, inputText);
-      
+      const result = await this.executeRecoveryStrategy(
+        strategy,
+        error,
+        _currentState,
+        inputText
+      );
+
       attempt.success = result.success;
       this.recoveryAttempts.push(attempt);
 
@@ -174,34 +190,37 @@ export class ErrorRecoverySystem {
 
       if (result.success) {
         if (this.events.onRecoverySucceeded) {
-          this.events.onRecoverySucceeded(attempt, result.newState || _currentState);
+          this.events.onRecoverySucceeded(
+            attempt,
+            result.newState || _currentState
+          );
         }
-        
+
         // Reset recovery count on successful recovery
         this.recoveryCount = 0;
-        
+
         return {
           success: true,
           newState: result.newState,
-          newInputText: result.newInputText
+          newInputText: result.newInputText,
         };
       } else {
         if (this.events.onRecoveryFailed) {
           this.events.onRecoveryFailed(attempt);
         }
-        
+
         return { success: false };
       }
     } catch (recoveryError) {
       attempt.success = false;
       attempt.description += ` (Recovery failed: ${recoveryError instanceof Error ? recoveryError.message : 'Unknown error'})`;
-      
+
       this.recoveryAttempts.push(attempt);
-      
+
       if (this.events.onRecoveryFailed) {
         this.events.onRecoveryFailed(attempt);
       }
-      
+
       return { success: false };
     }
   }
@@ -209,7 +228,12 @@ export class ErrorRecoverySystem {
   /**
    * Backup current state
    */
-  backupState(state: Partial<AppState>, inputText: string, isValid: boolean, description?: string): string {
+  backupState(
+    state: Partial<AppState>,
+    inputText: string,
+    isValid: boolean,
+    description?: string
+  ): string {
     if (!this.config.enableStateBackup) {
       return '';
     }
@@ -220,7 +244,9 @@ export class ErrorRecoverySystem {
       state: this.deepClone(state),
       inputText,
       isValid,
-      description: description || (isValid ? 'Valid state backup' : 'Invalid state backup')
+      description:
+        description ||
+        (isValid ? 'Valid state backup' : 'Invalid state backup'),
     };
 
     this.stateBackups.push(backup);
@@ -249,9 +275,13 @@ export class ErrorRecoverySystem {
   /**
    * Restore state from backup
    */
-  restoreState(backupId: string): { success: boolean; state?: Partial<AppState>; inputText?: string } {
-    const backup = this.stateBackups.find(b => b.id === backupId);
-    
+  restoreState(backupId: string): {
+    success: boolean;
+    state?: Partial<AppState>;
+    inputText?: string;
+  } {
+    const backup = this.stateBackups.find((b) => b.id === backupId);
+
     if (!backup) {
       return { success: false };
     }
@@ -263,7 +293,7 @@ export class ErrorRecoverySystem {
     return {
       success: true,
       state: this.deepClone(backup.state),
-      inputText: backup.inputText
+      inputText: backup.inputText,
     };
   }
 
@@ -273,7 +303,7 @@ export class ErrorRecoverySystem {
   getLastValidState(): { state: Partial<AppState> | null; inputText: string } {
     return {
       state: this.lastValidState ? this.deepClone(this.lastValidState) : null,
-      inputText: this.lastValidInputText
+      inputText: this.lastValidInputText,
     };
   }
 
@@ -288,7 +318,7 @@ export class ErrorRecoverySystem {
    * Get valid state backups only
    */
   getValidStateBackups(): StateBackup[] {
-    return this.stateBackups.filter(backup => backup.isValid);
+    return this.stateBackups.filter((backup) => backup.isValid);
   }
 
   /**
@@ -320,33 +350,32 @@ export class ErrorRecoverySystem {
    * Determine appropriate recovery strategy
    */
   private determineRecoveryStrategy(
-    error: ValidationError, 
+    error: ValidationError,
     _currentState: Partial<AppState>,
     _inputText: string
   ): RecoveryStrategy {
-    
     switch (error.type) {
       case ErrorType.UNSUPPORTED_NOTE:
         return RecoveryStrategy.AUTO_FIX_NOTES;
-      
+
       case ErrorType.EMPTY_INPUT:
-        return this.config.fallbackToLastValidState && this.lastValidState 
-          ? RecoveryStrategy.RESTORE_LAST_VALID 
+        return this.config.fallbackToLastValidState && this.lastValidState
+          ? RecoveryStrategy.RESTORE_LAST_VALID
           : RecoveryStrategy.MANUAL_INTERVENTION;
-      
+
       case ErrorType.PARSING_ERROR:
         if (error.line !== undefined) {
           return RecoveryStrategy.CLEAR_INVALID_LINES;
         }
         return RecoveryStrategy.PARTIAL_RECOVERY;
-      
+
       case ErrorType.INVALID_FILE_TYPE:
       case ErrorType.RENDERING_ERROR:
       case ErrorType.EXPORT_ERROR:
         return this.config.fallbackToLastValidState && this.lastValidState
           ? RecoveryStrategy.RESTORE_LAST_VALID
           : RecoveryStrategy.MANUAL_INTERVENTION;
-      
+
       default:
         return RecoveryStrategy.MANUAL_INTERVENTION;
     }
@@ -360,21 +389,24 @@ export class ErrorRecoverySystem {
     error: ValidationError,
     _currentState: Partial<AppState>,
     inputText: string
-  ): Promise<{ success: boolean; newState?: Partial<AppState>; newInputText?: string }> {
-    
+  ): Promise<{
+    success: boolean;
+    newState?: Partial<AppState>;
+    newInputText?: string;
+  }> {
     switch (strategy) {
       case RecoveryStrategy.RESTORE_LAST_VALID:
         return this.executeRestoreLastValid();
-      
+
       case RecoveryStrategy.CLEAR_INVALID_LINES:
         return this.executeClearInvalidLines(error, inputText);
-      
+
       case RecoveryStrategy.AUTO_FIX_NOTES:
         return this.executeAutoFixNotes(error, inputText);
-      
+
       case RecoveryStrategy.PARTIAL_RECOVERY:
         return this.executePartialRecovery(inputText);
-      
+
       case RecoveryStrategy.MANUAL_INTERVENTION:
       default:
         return { success: false };
@@ -384,7 +416,11 @@ export class ErrorRecoverySystem {
   /**
    * Execute restore last valid state strategy
    */
-  private executeRestoreLastValid(): Promise<{ success: boolean; newState?: Partial<AppState>; newInputText?: string }> {
+  private executeRestoreLastValid(): Promise<{
+    success: boolean;
+    newState?: Partial<AppState>;
+    newInputText?: string;
+  }> {
     if (!this.lastValidState) {
       return Promise.resolve({ success: false });
     }
@@ -392,7 +428,7 @@ export class ErrorRecoverySystem {
     return Promise.resolve({
       success: true,
       newState: this.deepClone(this.lastValidState),
-      newInputText: this.lastValidInputText
+      newInputText: this.lastValidInputText,
     });
   }
 
@@ -400,25 +436,28 @@ export class ErrorRecoverySystem {
    * Execute clear invalid lines strategy
    */
   private executeClearInvalidLines(
-    error: ValidationError, 
+    error: ValidationError,
     inputText: string
-  ): Promise<{ success: boolean; newState?: Partial<AppState>; newInputText?: string }> {
-    
+  ): Promise<{
+    success: boolean;
+    newState?: Partial<AppState>;
+    newInputText?: string;
+  }> {
     if (error.line === undefined) {
       return Promise.resolve({ success: false });
     }
 
     const lines = inputText.split('\n');
     const lineIndex = error.line - 1;
-    
+
     if (lineIndex >= 0 && lineIndex < lines.length) {
       // Remove the problematic line
       lines.splice(lineIndex, 1);
       const newInputText = lines.join('\n');
-      
+
       return Promise.resolve({
         success: true,
-        newInputText
+        newInputText,
       });
     }
 
@@ -429,21 +468,24 @@ export class ErrorRecoverySystem {
    * Execute auto-fix notes strategy
    */
   private executeAutoFixNotes(
-    _error: ValidationError, 
+    _error: ValidationError,
     inputText: string
-  ): Promise<{ success: boolean; newState?: Partial<AppState>; newInputText?: string }> {
-    
+  ): Promise<{
+    success: boolean;
+    newState?: Partial<AppState>;
+    newInputText?: string;
+  }> {
     // Try to auto-fix common note issues
     let fixedText = inputText;
-    
+
     // Convert common note variations
     const noteFixMap: Record<string, string> = {
-      'B': 'Bb',
-      'b': 'Bb',
+      B: 'Bb',
+      b: 'Bb',
       'A#': 'Bb',
       'a#': 'Bb',
-      'H': 'Bb', // German notation
-      'h': 'Bb'
+      H: 'Bb', // German notation
+      h: 'Bb',
     };
 
     // Apply fixes
@@ -456,7 +498,7 @@ export class ErrorRecoverySystem {
     if (fixedText !== inputText) {
       return Promise.resolve({
         success: true,
-        newInputText: fixedText
+        newInputText: fixedText,
       });
     }
 
@@ -466,11 +508,15 @@ export class ErrorRecoverySystem {
   /**
    * Execute partial recovery strategy
    */
-  private executePartialRecovery(inputText: string): Promise<{ success: boolean; newState?: Partial<AppState>; newInputText?: string }> {
+  private executePartialRecovery(inputText: string): Promise<{
+    success: boolean;
+    newState?: Partial<AppState>;
+    newInputText?: string;
+  }> {
     // Try to extract valid parts of the input
     const lines = inputText.split('\n');
     const validLines: string[] = [];
-    
+
     // Keep the title (first line) if it exists
     if (lines.length > 0 && lines[0].trim()) {
       validLines.push(lines[0]);
@@ -484,10 +530,11 @@ export class ErrorRecoverySystem {
       }
     }
 
-    if (validLines.length > 1) { // Title + at least one note line
+    if (validLines.length > 1) {
+      // Title + at least one note line
       return Promise.resolve({
         success: true,
-        newInputText: validLines.join('\n')
+        newInputText: validLines.join('\n'),
       });
     }
 
@@ -499,20 +546,23 @@ export class ErrorRecoverySystem {
    */
   private isLinePartiallyValid(line: string): boolean {
     const supportedNotes = ['F', 'G', 'A', 'Bb', 'C', 'D', 'E', 'B']; // Include B for conversion
-    const words = line.split(/[\s,|\-]+/).map(w => w.trim().toUpperCase());
-    
+    const words = line.split(/[\s,|-]+/).map((w) => w.trim().toUpperCase());
+
     // Check if at least 50% of words are valid notes
-    const validNoteCount = words.filter(word => 
-      supportedNotes.some(note => word.includes(note))
+    const validNoteCount = words.filter((word) =>
+      supportedNotes.some((note) => word.includes(note))
     ).length;
-    
-    return words.length > 0 && (validNoteCount / words.length) >= 0.5;
+
+    return words.length > 0 && validNoteCount / words.length >= 0.5;
   }
 
   /**
    * Get description for recovery strategy
    */
-  private getRecoveryDescription(strategy: RecoveryStrategy, error: ValidationError): string {
+  private getRecoveryDescription(
+    strategy: RecoveryStrategy,
+    error: ValidationError
+  ): string {
     switch (strategy) {
       case RecoveryStrategy.RESTORE_LAST_VALID:
         return 'Restoring last valid state';
@@ -551,7 +601,7 @@ export class ErrorRecoverySystem {
     window.addEventListener('error', (event) => {
       if (this.events.onErrorBoundaryTriggered) {
         this.events.onErrorBoundaryTriggered(
-          new Error(event.message), 
+          new Error(event.message),
           `Global error at ${event.filename}:${event.lineno}:${event.colno}`
         );
       }
@@ -561,7 +611,7 @@ export class ErrorRecoverySystem {
     window.addEventListener('unhandledrejection', (event) => {
       if (this.events.onErrorBoundaryTriggered) {
         this.events.onErrorBoundaryTriggered(
-          new Error(event.reason), 
+          new Error(event.reason),
           'Unhandled promise rejection'
         );
       }
@@ -576,10 +626,13 @@ export class ErrorRecoverySystem {
       const backupsData = {
         backups: this.stateBackups.slice(-5), // Keep only last 5 in storage
         lastValidState: this.lastValidState,
-        lastValidInputText: this.lastValidInputText
+        lastValidInputText: this.lastValidInputText,
       };
-      
-      localStorage.setItem('ocarina-error-recovery-backups', JSON.stringify(backupsData));
+
+      localStorage.setItem(
+        'ocarina-error-recovery-backups',
+        JSON.stringify(backupsData)
+      );
     } catch (error) {
       console.warn('Failed to save backups to localStorage:', error);
     }
@@ -593,14 +646,14 @@ export class ErrorRecoverySystem {
       const stored = localStorage.getItem('ocarina-error-recovery-backups');
       if (stored) {
         const backupsData = JSON.parse(stored);
-        
+
         if (backupsData.backups) {
           this.stateBackups = backupsData.backups.map((backup: any) => ({
             ...backup,
-            timestamp: new Date(backup.timestamp)
+            timestamp: new Date(backup.timestamp),
           }));
         }
-        
+
         if (backupsData.lastValidState) {
           this.lastValidState = backupsData.lastValidState;
           this.lastValidInputText = backupsData.lastValidInputText || '';
@@ -625,22 +678,22 @@ export class ErrorRecoverySystem {
     if (obj === null || typeof obj !== 'object') {
       return obj;
     }
-    
+
     if (obj instanceof Date) {
       return new Date(obj.getTime()) as unknown as T;
     }
-    
+
     if (Array.isArray(obj)) {
-      return obj.map(item => this.deepClone(item)) as unknown as T;
+      return obj.map((item) => this.deepClone(item)) as unknown as T;
     }
-    
+
     const cloned = {} as T;
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         cloned[key] = this.deepClone(obj[key]);
       }
     }
-    
+
     return cloned;
   }
 
@@ -649,7 +702,7 @@ export class ErrorRecoverySystem {
    */
   updateConfig(config: Partial<ErrorRecoveryConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     // Restart backup timer if interval changed
     if (config.backupInterval !== undefined && this.config.enableStateBackup) {
       this.startBackupTimer();

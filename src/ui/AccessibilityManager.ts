@@ -59,7 +59,7 @@ export class AccessibilityManager {
   private fileInput: HTMLInputElement | null = null;
   private dropZone: HTMLElement | null = null;
   private savedFocusElement: HTMLElement | null = null;
-  
+
   // Element references
   private textArea: HTMLTextAreaElement | null = null;
   private canvas: HTMLCanvasElement | null = null;
@@ -77,7 +77,7 @@ export class AccessibilityManager {
       enableChartDescriptions: true,
       announceValidationChanges: true,
       announceStateChanges: true,
-      ...config
+      ...config,
     };
   }
 
@@ -122,7 +122,9 @@ export class AccessibilityManager {
     }
 
     // Announce that accessibility features are ready
-    this.announceToScreenReader('Accessibility features initialized. Press Alt+H for keyboard shortcuts help.');
+    this.announceToScreenReader(
+      'Accessibility features initialized. Press Alt+H for keyboard shortcuts help.'
+    );
   }
 
   /**
@@ -156,83 +158,83 @@ export class AccessibilityManager {
         key: 's',
         ctrlKey: true,
         action: () => this.exportButton?.click(),
-        description: 'Export chart as PNG'
+        description: 'Export chart as PNG',
       },
       {
         key: 's',
         metaKey: true, // For Mac
         action: () => this.exportButton?.click(),
-        description: 'Export chart as PNG'
+        description: 'Export chart as PNG',
       },
       {
         key: 'l',
         ctrlKey: true,
         action: () => this.clearButton?.click(),
-        description: 'Clear all input'
+        description: 'Clear all input',
       },
       {
         key: 'l',
         metaKey: true, // For Mac
         action: () => this.clearButton?.click(),
-        description: 'Clear all input'
+        description: 'Clear all input',
       },
       {
         key: 'e',
         ctrlKey: true,
         action: () => this.exampleButton?.click(),
-        description: 'Load example song'
+        description: 'Load example song',
       },
       {
         key: 'e',
         metaKey: true, // For Mac
         action: () => this.exampleButton?.click(),
-        description: 'Load example song'
+        description: 'Load example song',
       },
       {
         key: 't',
         ctrlKey: true,
         action: () => this.titleInput?.focus(),
-        description: 'Focus title input'
+        description: 'Focus title input',
       },
       {
         key: 't',
         metaKey: true, // For Mac
         action: () => this.titleInput?.focus(),
-        description: 'Focus title input'
+        description: 'Focus title input',
       },
       {
         key: 'i',
         ctrlKey: true,
         action: () => this.textArea?.focus(),
-        description: 'Focus input area'
+        description: 'Focus input area',
       },
       {
         key: 'i',
         metaKey: true, // For Mac
         action: () => this.textArea?.focus(),
-        description: 'Focus input area'
+        description: 'Focus input area',
       },
       {
         key: 'h',
         altKey: true,
         action: () => this.showKeyboardShortcutsHelp(),
-        description: 'Show keyboard shortcuts help'
+        description: 'Show keyboard shortcuts help',
       },
       {
         key: 'd',
         altKey: true,
         action: () => this.announceChartDescription(),
-        description: 'Describe current chart'
+        description: 'Describe current chart',
       },
       {
         key: 'Escape',
         action: () => this.handleEscapeKey(),
-        description: 'Close dialogs or clear focus'
-      }
+        description: 'Close dialogs or clear focus',
+      },
     ];
 
     // Register shortcuts
-    shortcuts.forEach(shortcut => {
+    shortcuts.forEach((shortcut) => {
       const key = this.getShortcutKey(shortcut);
       this.shortcuts.set(key, shortcut);
     });
@@ -248,13 +250,13 @@ export class AccessibilityManager {
    * Set up focus management for given elements (public method for testing)
    */
   setupFocusManagement(elements: HTMLElement[]): void {
-    elements.forEach(element => {
+    elements.forEach((element) => {
       element.addEventListener('focus', (e) => {
         // Add focus handling
         const target = e.target as HTMLElement;
         target.classList.add('focus-visible');
       });
-      
+
       element.addEventListener('blur', (e) => {
         // Remove focus styling
         const target = e.target as HTMLElement;
@@ -287,23 +289,36 @@ export class AccessibilityManager {
   private enhanceScreenReaderSupport(): void {
     // Enhance text area
     if (this.textArea) {
-      this.textArea.setAttribute('aria-describedby', 'input-help textarea-instructions');
-      this.textArea.setAttribute('aria-label', 'Song notation input. Enter your song title on the first line, followed by note sequences on subsequent lines.');
-      
+      this.textArea.setAttribute(
+        'aria-describedby',
+        'input-help textarea-instructions'
+      );
+      this.textArea.setAttribute(
+        'aria-label',
+        'Song notation input. Enter your song title on the first line, followed by note sequences on subsequent lines.'
+      );
+
       // Add instructions element if it doesn't exist
       if (!document.getElementById('textarea-instructions')) {
         const instructions = document.createElement('div');
         instructions.id = 'textarea-instructions';
         instructions.className = 'sr-only';
-        instructions.textContent = 'Supported notes are F, G, A, Bb, C, D, E. Use spaces to separate notes and new lines to separate phrases.';
-        this.textArea.parentNode?.insertBefore(instructions, this.textArea.nextSibling);
+        instructions.textContent =
+          'Supported notes are F, G, A, Bb, C, D, E. Use spaces to separate notes and new lines to separate phrases.';
+        this.textArea.parentNode?.insertBefore(
+          instructions,
+          this.textArea.nextSibling
+        );
       }
     }
 
     // Enhance canvas
     if (this.canvas) {
       this.canvas.setAttribute('role', 'img');
-      this.canvas.setAttribute('aria-label', 'Ocarina fingering chart visualization');
+      this.canvas.setAttribute(
+        'aria-label',
+        'Ocarina fingering chart visualization'
+      );
       this.canvas.setAttribute('aria-describedby', 'chart-description');
     }
 
@@ -311,12 +326,13 @@ export class AccessibilityManager {
     if (this.exportButton) {
       this.exportButton.setAttribute('aria-describedby', 'export-help');
       this.exportButton.setAttribute('aria-keyshortcuts', 'Control+S');
-      
+
       if (!document.getElementById('export-help')) {
         const help = document.createElement('div');
         help.id = 'export-help';
         help.className = 'sr-only';
-        help.textContent = 'Download the current fingering chart as a PNG image file. Keyboard shortcut: Ctrl+S';
+        help.textContent =
+          'Download the current fingering chart as a PNG image file. Keyboard shortcut: Ctrl+S';
         this.exportButton.parentNode?.appendChild(help);
       }
     }
@@ -324,12 +340,13 @@ export class AccessibilityManager {
     if (this.clearButton) {
       this.clearButton.setAttribute('aria-describedby', 'clear-help');
       this.clearButton.setAttribute('aria-keyshortcuts', 'Control+L');
-      
+
       if (!document.getElementById('clear-help')) {
         const help = document.createElement('div');
         help.id = 'clear-help';
         help.className = 'sr-only';
-        help.textContent = 'Clear all input text and reset the chart. Keyboard shortcut: Ctrl+L';
+        help.textContent =
+          'Clear all input text and reset the chart. Keyboard shortcut: Ctrl+L';
         this.clearButton.parentNode?.appendChild(help);
       }
     }
@@ -337,12 +354,13 @@ export class AccessibilityManager {
     if (this.exampleButton) {
       this.exampleButton.setAttribute('aria-describedby', 'example-help');
       this.exampleButton.setAttribute('aria-keyshortcuts', 'Control+E');
-      
+
       if (!document.getElementById('example-help')) {
         const help = document.createElement('div');
         help.id = 'example-help';
         help.className = 'sr-only';
-        help.textContent = 'Load an example song to see how notation works. Keyboard shortcut: Ctrl+E';
+        help.textContent =
+          'Load an example song to see how notation works. Keyboard shortcut: Ctrl+E';
         this.exampleButton.parentNode?.appendChild(help);
       }
     }
@@ -350,27 +368,32 @@ export class AccessibilityManager {
     // Enhance file input and drop zone
     if (this.fileInput) {
       this.fileInput.setAttribute('aria-describedby', 'file-input-help');
-      
+
       if (!document.getElementById('file-input-help')) {
         const help = document.createElement('div');
         help.id = 'file-input-help';
         help.className = 'sr-only';
-        help.textContent = 'Select a text file containing song notation. Supported formats: .txt files with note sequences.';
+        help.textContent =
+          'Select a text file containing song notation. Supported formats: .txt files with note sequences.';
         this.fileInput.parentNode?.appendChild(help);
       }
     }
 
     if (this.dropZone) {
       this.dropZone.setAttribute('role', 'button');
-      this.dropZone.setAttribute('aria-label', 'File drop zone. Click to select a file or drag and drop a text file here.');
+      this.dropZone.setAttribute(
+        'aria-label',
+        'File drop zone. Click to select a file or drag and drop a text file here.'
+      );
       this.dropZone.setAttribute('aria-describedby', 'drop-zone-help');
       this.dropZone.setAttribute('tabindex', '0');
-      
+
       if (!document.getElementById('drop-zone-help')) {
         const help = document.createElement('div');
         help.id = 'drop-zone-help';
         help.className = 'sr-only';
-        help.textContent = 'Drag and drop a text file here, or click to open file picker. Keyboard shortcut: Ctrl+F';
+        help.textContent =
+          'Drag and drop a text file here, or click to open file picker. Keyboard shortcut: Ctrl+F';
         this.dropZone.parentNode?.appendChild(help);
       }
     }
@@ -382,7 +405,7 @@ export class AccessibilityManager {
   private setupChartDescriptions(): void {
     // Create or find chart description element
     this.chartDescriptionElement = document.getElementById('chart-description');
-    
+
     if (!this.chartDescriptionElement && this.canvas) {
       this.chartDescriptionElement = document.createElement('div');
       this.chartDescriptionElement.id = 'chart-description';
@@ -400,7 +423,8 @@ export class AccessibilityManager {
     }
 
     if (!song) {
-      this.chartDescriptionElement.textContent = 'No chart currently displayed. Enter song notation to generate a fingering chart.';
+      this.chartDescriptionElement.textContent =
+        'No chart currently displayed. Enter song notation to generate a fingering chart.';
       return;
     }
 
@@ -410,7 +434,9 @@ export class AccessibilityManager {
 
     // Announce chart update
     if (this.config.announceStateChanges) {
-      this.announceToScreenReader(`Chart updated for "${song.title}". ${song.lines.length} line${song.lines.length !== 1 ? 's' : ''} of notation. Press Alt+D to hear detailed description.`);
+      this.announceToScreenReader(
+        `Chart updated for "${song.title}". ${song.lines.length} line${song.lines.length !== 1 ? 's' : ''} of notation. Press Alt+D to hear detailed description.`
+      );
     }
   }
 
@@ -440,17 +466,20 @@ export class AccessibilityManager {
   /**
    * Get fingering pattern description for screen readers
    */
-  private getFingeringPatternDescription(note: string, pattern: FingeringPattern): string {
+  private getFingeringPatternDescription(
+    note: string,
+    pattern: FingeringPattern
+  ): string {
     const holes = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
     const covered = pattern.holes
-      .map((isCovered, index) => isCovered ? holes[index] : null)
+      .map((isCovered, index) => (isCovered ? holes[index] : null))
       .filter(Boolean);
     const open = pattern.holes
-      .map((isCovered, index) => !isCovered ? holes[index] : null)
+      .map((isCovered, index) => (!isCovered ? holes[index] : null))
       .filter(Boolean);
 
     let description = `Note ${note}: `;
-    
+
     if (covered.length === 0) {
       description += 'All holes open';
     } else if (covered.length === 4) {
@@ -474,11 +503,13 @@ export class AccessibilityManager {
     }
 
     if (result.isValid) {
-      this.announceToScreenReader('Input is valid. Chart generated successfully.');
+      this.announceToScreenReader(
+        'Input is valid. Chart generated successfully.'
+      );
     } else {
       const errorCount = result.errors.length;
       const warningCount = result.warnings.length;
-      
+
       let message = '';
       if (errorCount > 0) {
         message += `${errorCount} error${errorCount !== 1 ? 's' : ''} found. `;
@@ -486,12 +517,12 @@ export class AccessibilityManager {
       if (warningCount > 0) {
         message += `${warningCount} warning${warningCount !== 1 ? 's' : ''} found. `;
       }
-      
+
       // Announce first error for immediate feedback
       if (result.errors.length > 0) {
         message += `First error: ${result.errors[0].message}`;
       }
-      
+
       this.announceToScreenReader(message, 'assertive');
     }
   }
@@ -505,7 +536,7 @@ export class AccessibilityManager {
       ctrlKey: event.ctrlKey,
       metaKey: event.metaKey,
       shiftKey: event.shiftKey,
-      altKey: event.altKey
+      altKey: event.altKey,
     } as KeyboardShortcut);
 
     const shortcut = this.shortcuts.get(key);
@@ -521,13 +552,22 @@ export class AccessibilityManager {
   /**
    * Check if we should prevent default behavior for a shortcut
    */
-  private shouldPreventDefault(event: KeyboardEvent, shortcut: KeyboardShortcut): boolean {
+  private shouldPreventDefault(
+    event: KeyboardEvent,
+    shortcut: KeyboardShortcut
+  ): boolean {
     // Don't interfere with browser shortcuts in input fields unless it's our custom shortcut
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+    if (
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement
+    ) {
       // Allow our custom shortcuts even in input fields
-      return !!shortcut.altKey || (!!shortcut.ctrlKey && ['s', 'l', 'e', 'f', 'i'].includes(shortcut.key));
+      return (
+        !!shortcut.altKey ||
+        (!!shortcut.ctrlKey && ['s', 'l', 'e', 'f', 'i'].includes(shortcut.key))
+      );
     }
-    
+
     return true;
   }
 
@@ -555,16 +595,18 @@ export class AccessibilityManager {
       'select:not([disabled])',
       '[tabindex]:not([tabindex="-1"])',
       'a[href]',
-      '[role="button"]:not([disabled])'
+      '[role="button"]:not([disabled])',
     ];
 
-    const elements = document.querySelectorAll(focusableSelectors.join(', ')) as NodeListOf<HTMLElement>;
-    
-    this.focusableElements = Array.from(elements).map(element => ({
+    const elements = document.querySelectorAll(
+      focusableSelectors.join(', ')
+    ) as NodeListOf<HTMLElement>;
+
+    this.focusableElements = Array.from(elements).map((element) => ({
       element,
       tabIndex: parseInt(element.getAttribute('tabindex') || '0'),
       role: element.getAttribute('role') || undefined,
-      ariaLabel: element.getAttribute('aria-label') || undefined
+      ariaLabel: element.getAttribute('aria-label') || undefined,
     }));
   }
 
@@ -580,7 +622,7 @@ export class AccessibilityManager {
       this.clearButton,
       this.exampleButton,
       this.canvas,
-      this.exportButton
+      this.exportButton,
     ].filter(Boolean) as HTMLElement[];
 
     elements.forEach((element, _index) => {
@@ -603,10 +645,12 @@ export class AccessibilityManager {
    */
   private handleFocusIn(event: FocusEvent): void {
     const target = event.target as HTMLElement;
-    
+
     // Announce focused element to screen reader if it has special meaning
     if (target === this.canvas) {
-      this.announceToScreenReader('Chart preview focused. Press Alt+D to hear chart description.');
+      this.announceToScreenReader(
+        'Chart preview focused. Press Alt+D to hear chart description.'
+      );
     }
   }
 
@@ -634,9 +678,12 @@ export class AccessibilityManager {
     const shortcuts = Array.from(this.shortcuts.values())
       .filter((shortcut, index, array) => {
         // Remove duplicates (ctrl/meta variants)
-        return array.findIndex(s => s.description === shortcut.description) === index;
+        return (
+          array.findIndex((s) => s.description === shortcut.description) ===
+          index
+        );
       })
-      .map(shortcut => {
+      .map((shortcut) => {
         const keys = [];
         if (shortcut.ctrlKey || shortcut.metaKey) keys.push('Ctrl');
         if (shortcut.shiftKey) keys.push('Shift');
@@ -646,10 +693,12 @@ export class AccessibilityManager {
       });
 
     const helpText = `Keyboard shortcuts available:\n${shortcuts.join('\n')}`;
-    
+
     // Announce to screen reader
-    this.announceToScreenReader('Keyboard shortcuts help opened. ' + helpText.replace(/\n/g, '. '));
-    
+    this.announceToScreenReader(
+      'Keyboard shortcuts help opened. ' + helpText.replace(/\n/g, '. ')
+    );
+
     // Also show in alert for sighted users
     alert(helpText);
   }
@@ -659,7 +708,9 @@ export class AccessibilityManager {
    */
   private announceChartDescription(): void {
     if (this.chartDescriptionElement) {
-      const description = this.chartDescriptionElement.textContent || 'No chart description available.';
+      const description =
+        this.chartDescriptionElement.textContent ||
+        'No chart description available.';
       this.announceToScreenReader(description);
     }
   }
@@ -667,9 +718,13 @@ export class AccessibilityManager {
   /**
    * Announce message to screen reader
    */
-  announceToScreenReader(message: string, priority: 'polite' | 'assertive' = 'polite'): void {
-    const region = priority === 'assertive' ? this.statusRegion : this.ariaLiveRegion;
-    
+  announceToScreenReader(
+    message: string,
+    priority: 'polite' | 'assertive' = 'polite'
+  ): void {
+    const region =
+      priority === 'assertive' ? this.statusRegion : this.ariaLiveRegion;
+
     if (region) {
       // Clear and set new message
       region.textContent = '';
@@ -689,8 +744,11 @@ export class AccessibilityManager {
   }): void {
     if (this.exportButton) {
       this.exportButton.disabled = !states.canExport;
-      this.exportButton.setAttribute('aria-disabled', (!states.canExport).toString());
-      
+      this.exportButton.setAttribute(
+        'aria-disabled',
+        (!states.canExport).toString()
+      );
+
       if (states.isExporting) {
         this.exportButton.setAttribute('aria-busy', 'true');
         this.exportButton.textContent = 'Exporting...';
@@ -727,7 +785,7 @@ export class AccessibilityManager {
   }
 
   // Additional methods expected by tests
-  
+
   /**
    * Set up text area accessibility
    */
@@ -747,7 +805,7 @@ export class AccessibilityManager {
    * Set up keyboard navigation
    */
   setupKeyboardNavigation(elements: HTMLElement[]): void {
-    elements.forEach(element => {
+    elements.forEach((element) => {
       if (!element.hasAttribute('tabindex')) {
         element.setAttribute('tabindex', '0');
       }
@@ -784,11 +842,11 @@ export class AccessibilityManager {
       liveRegion.style.overflow = 'hidden';
       document.body.appendChild(liveRegion);
     }
-    
+
     // Announce the update
     const noteCount = song.lines.flat().length;
     liveRegion.textContent = `Chart updated for "${song.title}" with ${noteCount} notes`;
-    
+
     this.updateChartDescription(song);
   }
 
@@ -810,7 +868,9 @@ export class AccessibilityManager {
   /**
    * Generate fingering instructions
    */
-  generateFingeringInstructions(patterns: Map<string, FingeringPattern>): string {
+  generateFingeringInstructions(
+    patterns: Map<string, FingeringPattern>
+  ): string {
     const instructions: string[] = [];
     patterns.forEach((pattern, note) => {
       instructions.push(this.getFingeringPatternDescription(note, pattern));
@@ -821,38 +881,60 @@ export class AccessibilityManager {
   /**
    * Check color contrast
    */
-  checkColorContrast(_colors: { background: string; text: string; holeFilled: string; holeEmpty: string }): { ratio: number; passes: boolean; textBackground: number; holeBackground: number } {
+  checkColorContrast(_colors: {
+    background: string;
+    text: string;
+    holeFilled: string;
+    holeEmpty: string;
+  }): {
+    ratio: number;
+    passes: boolean;
+    textBackground: number;
+    holeBackground: number;
+  } {
     // Simplified contrast checking - in real implementation would use proper color analysis
     return {
       ratio: 4.5, // Mock passing ratio
       passes: true,
       textBackground: 4.5, // Mock text/background contrast ratio
-      holeBackground: 3.0  // Mock hole/background contrast ratio
+      holeBackground: 3.0, // Mock hole/background contrast ratio
     };
   }
 
   /**
    * Get high contrast configuration
    */
-  getHighContrastConfig(): { colors: { background: string; text: string; holeFilled: string; holeEmpty: string } } {
+  getHighContrastConfig(): {
+    colors: {
+      background: string;
+      text: string;
+      holeFilled: string;
+      holeEmpty: string;
+    };
+  } {
     return {
       colors: {
         background: '#000000',
-        text: '#ffffff', 
+        text: '#ffffff',
         holeFilled: '#ffffff',
-        holeEmpty: '#000000'
-      }
+        holeEmpty: '#000000',
+      },
     };
   }
 
   /**
    * Get reduced motion configuration
    */
-  getReducedMotionConfig(): { disableAnimations: boolean; reducedTransitions: boolean } {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  getReducedMotionConfig(): {
+    disableAnimations: boolean;
+    reducedTransitions: boolean;
+  } {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
     return {
       disableAnimations: prefersReducedMotion,
-      reducedTransitions: prefersReducedMotion
+      reducedTransitions: prefersReducedMotion,
     };
   }
 
@@ -860,7 +942,9 @@ export class AccessibilityManager {
    * Trap focus within container
    */
   trapFocus(container: HTMLElement): void {
-    const focusableElements = container.querySelectorAll('button, input, textarea, select, [tabindex]:not([tabindex="-1"])');
+    const focusableElements = container.querySelectorAll(
+      'button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+    );
     if (focusableElements.length > 0) {
       (focusableElements[0] as HTMLElement).focus();
     }
@@ -897,11 +981,14 @@ export class AccessibilityManager {
   /**
    * Make errors accessible
    */
-  makeErrorsAccessible(errors: ValidationError[], inputElement: HTMLElement): void {
+  makeErrorsAccessible(
+    errors: ValidationError[],
+    inputElement: HTMLElement
+  ): void {
     inputElement.setAttribute('aria-invalid', 'true');
-    const errorMessages = errors.map(e => e.message).join('. ');
+    const errorMessages = errors.map((e) => e.message).join('. ');
     inputElement.setAttribute('aria-describedby', 'error-messages');
-    
+
     // Create or update error message element
     let errorElement = document.getElementById('error-messages');
     if (!errorElement) {
@@ -919,7 +1006,7 @@ export class AccessibilityManager {
   clearErrorAccessibility(inputElement: HTMLElement): void {
     inputElement.setAttribute('aria-invalid', 'false');
     inputElement.removeAttribute('aria-describedby');
-    
+
     const errorElement = document.getElementById('error-messages');
     if (errorElement) {
       errorElement.remove();
@@ -929,7 +1016,10 @@ export class AccessibilityManager {
   /**
    * Set up button accessibility
    */
-  setupButtonAccessibility(button: HTMLButtonElement, description: string): void {
+  setupButtonAccessibility(
+    button: HTMLButtonElement,
+    description: string
+  ): void {
     button.setAttribute('aria-label', description);
     button.setAttribute('role', 'button');
     button.setAttribute('tabindex', '0');
@@ -958,60 +1048,85 @@ export class AccessibilityManager {
   setupVoiceControlSupport(element: HTMLElement): void {
     // Set up voice command attributes for voice control systems
     const tagName = element.tagName?.toLowerCase() || '';
-    
+
     if (tagName === 'textarea') {
       element.setAttribute('data-voice-command', 'song input');
     } else if (tagName === 'button') {
-      element.setAttribute('data-voice-command', 'export chart');  
+      element.setAttribute('data-voice-command', 'export chart');
     } else {
       element.setAttribute('data-voice-command', 'interactive element');
     }
-    
+
     // Also ensure proper labeling for screen readers
-    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-      element.setAttribute('aria-label', element.textContent || 'Interactive element');
+    if (
+      !element.getAttribute('aria-label') &&
+      !element.getAttribute('aria-labelledby')
+    ) {
+      element.setAttribute(
+        'aria-label',
+        element.textContent || 'Interactive element'
+      );
     }
   }
 
   /**
    * Run accessibility audit
    */
-  runAccessibilityAudit(_container: HTMLElement): { violations: any[]; passes: any[] } {
+  runAccessibilityAudit(_container: HTMLElement): {
+    violations: any[];
+    passes: any[];
+  } {
     // Mock audit results - in real implementation would use axe-core
     return {
       violations: [],
-      passes: [{ description: 'All accessibility checks passed' }]
+      passes: [{ description: 'All accessibility checks passed' }],
     };
   }
 
   /**
    * Check WCAG compliance
    */
-  checkWCAGCompliance(_options: { level: string; guidelines: string[] }): { compliant: boolean; issues: any[]; failedGuidelines: any[] } {
+  checkWCAGCompliance(_options: { level: string; guidelines: string[] }): {
+    compliant: boolean;
+    issues: any[];
+    failedGuidelines: any[];
+  } {
     // Mock WCAG compliance check
     return {
       compliant: true,
       issues: [],
-      failedGuidelines: []
+      failedGuidelines: [],
     };
   }
 
   /**
    * Simulate screen reader
    */
-  simulateScreenReader(container: HTMLElement): { readableContent: string; announcements: string[]; navigationStructure: any; interactiveElements: HTMLElement[] } {
+  simulateScreenReader(container: HTMLElement): {
+    readableContent: string;
+    announcements: string[];
+    navigationStructure: any;
+    interactiveElements: HTMLElement[];
+  } {
     const readableContent = container.textContent || 'Chart content available';
-    const interactiveElements = Array.from(container.querySelectorAll('button, input, textarea, [tabindex]:not([tabindex="-1"])')) as HTMLElement[];
-    
+    const interactiveElements = Array.from(
+      container.querySelectorAll(
+        'button, input, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ) as HTMLElement[];
+
     return {
       readableContent,
       announcements: ['Screen reader simulation complete'],
       navigationStructure: {
         headings: container.querySelectorAll('h1, h2, h3, h4, h5, h6').length,
-        landmarks: container.querySelectorAll('[role="main"], [role="banner"], [role="navigation"]').length,
-        regions: container.querySelectorAll('[aria-label], [aria-labelledby]').length
+        landmarks: container.querySelectorAll(
+          '[role="main"], [role="banner"], [role="navigation"]'
+        ).length,
+        regions: container.querySelectorAll('[aria-label], [aria-labelledby]')
+          .length,
       },
-      interactiveElements
+      interactiveElements,
     };
   }
 
@@ -1027,7 +1142,7 @@ export class AccessibilityManager {
       enableFocusManagement: true,
       enableChartDescriptions: true,
       announceValidationChanges: true,
-      announceStateChanges: true
+      announceStateChanges: true,
     };
   }
 }

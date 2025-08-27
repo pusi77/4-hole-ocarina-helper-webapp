@@ -63,7 +63,7 @@ export class ErrorHighlighter {
       highlightEntireLine: true,
       showGutterIcons: true,
       maxTooltipLength: 200,
-      ...config
+      ...config,
     };
 
     this.initialize();
@@ -85,26 +85,26 @@ export class ErrorHighlighter {
     this.clearHighlights();
 
     // Process errors
-    validationResult.errors.forEach(error => {
+    validationResult.errors.forEach((error) => {
       if (error.line !== undefined) {
         this.addHighlight({
           lineNumber: error.line,
           type: 'error',
           message: error.message,
           position: error.position,
-          suggestions: error.suggestions
+          suggestions: error.suggestions,
         });
       }
     });
 
     // Process warnings
-    validationResult.warnings.forEach(warning => {
+    validationResult.warnings.forEach((warning) => {
       if (warning.line !== undefined) {
         this.addHighlight({
           lineNumber: warning.line,
           type: 'warning',
           message: warning.message,
-          position: warning.position
+          position: warning.position,
         });
       }
     });
@@ -146,7 +146,7 @@ export class ErrorHighlighter {
    * Get highlights by type
    */
   getHighlightsByType(type: 'error' | 'warning'): LineHighlight[] {
-    return this.getHighlights().filter(h => h.type === type);
+    return this.getHighlights().filter((h) => h.type === type);
   }
 
   /**
@@ -170,7 +170,7 @@ export class ErrorHighlighter {
     // Create wrapper container
     this.container = document.createElement('div');
     this.container.className = 'error-highlighter-container';
-    
+
     // Wrap the text area
     const parent = this.textArea.parentElement;
     if (parent) {
@@ -267,7 +267,7 @@ export class ErrorHighlighter {
 
     // Clear existing highlights
     this.overlayElement.innerHTML = '';
-    
+
     if (this.gutterElement) {
       this.gutterElement.innerHTML = '';
     }
@@ -285,9 +285,15 @@ export class ErrorHighlighter {
     // Render highlights for each line
     this.currentHighlights.forEach((highlight, lineNumber) => {
       const lineIndex = lineNumber - 1; // Convert to 0-based index
-      
+
       if (lineIndex >= 0 && lineIndex < lines.length) {
-        this.renderLineHighlight(highlight, lineIndex, lineHeight, paddingTop, paddingLeft);
+        this.renderLineHighlight(
+          highlight,
+          lineIndex,
+          lineHeight,
+          paddingTop,
+          paddingLeft
+        );
       }
     });
 
@@ -313,20 +319,20 @@ export class ErrorHighlighter {
     highlightElement.className = `error-highlight error-highlight-${highlight.type}`;
     highlightElement.setAttribute('data-line', highlight.lineNumber.toString());
     highlightElement.setAttribute('data-message', highlight.message);
-    
+
     // Position the highlight
-    const top = paddingTop + (lineIndex * lineHeight);
+    const top = paddingTop + lineIndex * lineHeight;
     highlightElement.style.top = `${top}px`;
     highlightElement.style.left = `${paddingLeft}px`;
     highlightElement.style.height = `${lineHeight}px`;
-    
+
     // Set width based on configuration
     if (this.config.highlightEntireLine) {
       highlightElement.style.right = '0';
     } else if (highlight.position !== undefined) {
       // Highlight specific position (approximate)
       const charWidth = 8; // Approximate character width
-      const startPos = paddingLeft + ((highlight.position - 1) * charWidth);
+      const startPos = paddingLeft + (highlight.position - 1) * charWidth;
       highlightElement.style.left = `${startPos}px`;
       highlightElement.style.width = `${charWidth * 2}px`; // Highlight 2 characters
     }
@@ -353,9 +359,9 @@ export class ErrorHighlighter {
     const gutterItem = document.createElement('div');
     gutterItem.className = `error-gutter-item error-gutter-${highlight.type}`;
     gutterItem.setAttribute('data-line', highlight.lineNumber.toString());
-    
+
     // Position the gutter item
-    const top = paddingTop + (lineIndex * lineHeight);
+    const top = paddingTop + lineIndex * lineHeight;
     gutterItem.style.top = `${top}px`;
     gutterItem.style.height = `${lineHeight}px`;
 
@@ -368,7 +374,7 @@ export class ErrorHighlighter {
       const icon = highlight.type === 'error' ? '⚠️' : '⚡';
       content += `<span class="gutter-icon">${icon}</span>`;
     }
-    
+
     gutterItem.innerHTML = content;
     this.gutterElement.appendChild(gutterItem);
   }
@@ -381,7 +387,7 @@ export class ErrorHighlighter {
 
     const rect = this.textArea.getBoundingClientRect();
     const containerRect = this.container?.getBoundingClientRect();
-    
+
     if (containerRect) {
       this.overlayElement.style.width = `${rect.width}px`;
       this.overlayElement.style.height = `${rect.height}px`;
@@ -408,11 +414,13 @@ export class ErrorHighlighter {
   private handleMouseMove(e: MouseEvent): void {
     const target = e.target as HTMLElement;
     const highlightElement = target.closest('.error-highlight') as HTMLElement;
-    
+
     if (highlightElement) {
-      const lineNumber = parseInt(highlightElement.getAttribute('data-line') || '0');
+      const lineNumber = parseInt(
+        highlightElement.getAttribute('data-line') || '0'
+      );
       const highlight = this.currentHighlights.get(lineNumber);
-      
+
       if (highlight) {
         this.showTooltip(highlight, e.clientX, e.clientY);
       }
@@ -427,11 +435,13 @@ export class ErrorHighlighter {
   private handleClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
     const highlightElement = target.closest('.error-highlight') as HTMLElement;
-    
+
     if (highlightElement) {
-      const lineNumber = parseInt(highlightElement.getAttribute('data-line') || '0');
+      const lineNumber = parseInt(
+        highlightElement.getAttribute('data-line') || '0'
+      );
       const highlight = this.currentHighlights.get(lineNumber);
-      
+
       if (highlight && this.events.onHighlightClick) {
         this.events.onHighlightClick(highlight);
       }
@@ -444,11 +454,11 @@ export class ErrorHighlighter {
   private handleGutterClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
     const gutterItem = target.closest('.error-gutter-item') as HTMLElement;
-    
+
     if (gutterItem) {
       const lineNumber = parseInt(gutterItem.getAttribute('data-line') || '0');
       const highlight = this.currentHighlights.get(lineNumber);
-      
+
       if (highlight && this.events.onHighlightClick) {
         this.events.onHighlightClick(highlight);
       }
@@ -473,7 +483,7 @@ export class ErrorHighlighter {
 
     this.tooltipElement.textContent = message;
     this.tooltipElement.className = `error-highlight-tooltip tooltip-${highlight.type}`;
-    
+
     // Position tooltip
     this.tooltipElement.style.left = `${x + 10}px`;
     this.tooltipElement.style.top = `${y - 10}px`;
@@ -487,7 +497,7 @@ export class ErrorHighlighter {
     if (tooltipRect.right > viewportWidth) {
       this.tooltipElement.style.left = `${x - tooltipRect.width - 10}px`;
     }
-    
+
     if (tooltipRect.bottom > viewportHeight) {
       this.tooltipElement.style.top = `${y - tooltipRect.height - 10}px`;
     }
@@ -521,7 +531,7 @@ export class ErrorHighlighter {
    */
   updateConfig(config: Partial<HighlightConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     // Re-render if configuration changed
     this.renderHighlights();
   }
@@ -548,7 +558,10 @@ export class ErrorHighlighter {
     }
 
     // Clean up text area classes
-    this.textArea.classList.remove('error-highlighter-textarea', 'with-line-numbers');
+    this.textArea.classList.remove(
+      'error-highlighter-textarea',
+      'with-line-numbers'
+    );
 
     // Clear references
     this.container = null;

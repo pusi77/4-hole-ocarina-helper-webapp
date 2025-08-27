@@ -3,14 +3,11 @@
  * Manages component interactions, event handling, and application lifecycle
  */
 
-import type { 
-  Song, 
-  ChartConfig 
-} from '../types/core.js';
-import type { 
-  ValidationResult, 
+import type { Song, ChartConfig } from '../types/core.js';
+import type {
+  ValidationResult,
   ValidationError,
-  ExampleSong 
+  ExampleSong,
 } from '../types/index.js';
 import { StateManager } from './StateManager.js';
 import { InputManager, type InputManagerEvents } from './InputManager.js';
@@ -50,15 +47,15 @@ interface UIElements {
   fileInput?: HTMLInputElement;
   dropZone?: HTMLElement;
   exampleContainer?: HTMLElement;
-  
+
   // Preview elements
   canvas: HTMLCanvasElement;
   previewContainer?: HTMLElement;
-  
+
   // Control elements
   exportButton?: HTMLButtonElement;
   clearButton?: HTMLButtonElement;
-  
+
   // Notification elements
   notificationContainer?: HTMLElement;
   errorContainer?: HTMLElement;
@@ -94,7 +91,7 @@ export class UIController {
   private previewController: PreviewController | null = null;
   // @ts-ignore - reserved for future use
   private accessibilityManager: AccessibilityManager | null = null;
-  
+
   private config: UIControllerConfig = {};
   private events: UIControllerEvents = {};
   private elements: UIElements = {} as UIElements;
@@ -114,13 +111,13 @@ export class UIController {
     this.container = container;
     this.stateManager = stateManager;
     this.inputManager = inputManager;
-    
+
     // Initialize managers
     this.loadingManager = new LoadingManager();
     this.errorManager = new ErrorHandlingManager({}, {});
     this.notificationSystem = new NotificationSystem({}, {});
     this.exportManager = new ExportManager({});
-    
+
     // Commented out until implemented
     // this.initializeEventListeners();
     // this.initializeUIElements();
@@ -139,23 +136,23 @@ export class UIController {
     try {
       // Initialize core components
       await this.initializeComponents();
-      
+
       // Set up component connections
       this.connectComponents();
-      
+
       // Set up event handlers
       this.setupEventHandlers();
-      
+
       // Initialize responsive behavior
       this.setupResponsiveBehavior();
-      
+
       this.isInitialized = true;
-      
+
       // Notify that the controller is ready
       if (this.events.onReady) {
         this.events.onReady();
       }
-      
+
       console.log('UIController: Initialization complete');
     } catch (error) {
       console.error('UIController: Initialization failed:', error);
@@ -173,18 +170,23 @@ export class UIController {
         console.log(`Loading started: ${state.operation}`);
       },
       onLoadingComplete: (state) => {
-        console.log(`Loading completed: ${state.operation} in ${(performance.now() - state.startTime).toFixed(1)}ms`);
-      }
+        console.log(
+          `Loading completed: ${state.operation} in ${(performance.now() - state.startTime).toFixed(1)}ms`
+        );
+      },
     });
 
     // Initialize notification system first (other components may need it)
-    if (this.config.enableNotifications && this.elements.notificationContainer) {
+    if (
+      this.config.enableNotifications &&
+      this.elements.notificationContainer
+    ) {
       this.notificationSystem = new NotificationSystem({}, {});
     }
 
     // Start memory monitoring
     globalMemoryMonitor.startMonitoring(5000); // Check every 5 seconds
-    
+
     // Register memory cleanup callback
     globalMemoryMonitor.registerCleanupCallback(() => {
       this.performMemoryCleanup();
@@ -197,7 +199,7 @@ export class UIController {
         {
           enableSuccessNotifications: true,
           enableWarningNotifications: true,
-          enableErrorRecovery: true
+          enableErrorRecovery: true,
         }
       );
     }
@@ -208,7 +210,7 @@ export class UIController {
         onSongChanged: this.handleSongChanged.bind(this),
         onValidationChanged: this.handleValidationChanged.bind(this),
         onError: this.handleError.bind(this),
-        onTextChanged: this.handleTextChanged.bind(this)
+        onTextChanged: this.handleTextChanged.bind(this),
       };
 
       this.realTimeApp = new RealTimeApp(
@@ -219,8 +221,8 @@ export class UIController {
           textInputConfig: {
             debounceDelay: this.config.debounceDelay,
             showValidationErrors: true,
-            highlightErrors: true
-          }
+            highlightErrors: true,
+          },
         }
       );
     }
@@ -233,12 +235,12 @@ export class UIController {
         onValidationResult: this.handleValidationResult.bind(this),
         onError: this.handleInputError.bind(this),
         onExampleLoaded: this.handleExampleLoaded.bind(this),
-        onExampleSelected: this.handleExampleSelected.bind(this)
+        onExampleSelected: this.handleExampleSelected.bind(this),
       };
 
       this.inputManager = new InputManager(inputEvents, {
         maxFileSize: this.config.maxFileSize,
-        allowMultiple: false
+        allowMultiple: false,
       });
 
       // Initialize input manager with DOM elements
@@ -246,7 +248,7 @@ export class UIController {
         dropZone: this.elements.dropZone,
         fileInput: this.elements.fileInput,
         textArea: this.elements.textArea,
-        exampleContainer: this.elements.exampleContainer
+        exampleContainer: this.elements.exampleContainer,
       });
     }
 
@@ -349,7 +351,9 @@ export class UIController {
    * Handle state changes from StateManager
    */
   // @ts-ignore - unused method
-  private handleStateChange(state: Readonly<import('../types/state.js').AppState>): void {
+  private handleStateChange(
+    state: Readonly<import('../types/state.js').AppState>
+  ): void {
     // Update export button state
     if (this.elements.exportButton) {
       this.elements.exportButton.disabled = !this.stateManager.canExport();
@@ -364,7 +368,7 @@ export class UIController {
 
     // Handle errors
     if (state.errors.length > 0 && this.errorManager) {
-      state.errors.forEach(error => {
+      state.errors.forEach((error) => {
         this.errorManager!.handleError(error, {}, '');
       });
     }
@@ -376,21 +380,23 @@ export class UIController {
   private handleSongChanged(song: Song | null): void {
     // Check memory usage for large songs
     if (song && MemoryUtils.isSongTooLarge(song)) {
-      const recommendations = MemoryUtils.getSongProcessingRecommendations(song);
+      const recommendations =
+        MemoryUtils.getSongProcessingRecommendations(song);
       console.warn('Large song detected:', recommendations);
-      
+
       if (this.notificationSystem) {
         this.notificationSystem.showWarning({
           type: 'PERFORMANCE_WARNING' as any,
-          message: 'This song may impact performance. Consider reducing complexity.',
+          message:
+            'This song may impact performance. Consider reducing complexity.',
           line: 0,
-          position: 0
+          position: 0,
         });
       }
     }
 
     this.stateManager.setSong(song);
-    
+
     if (this.events.onSongChanged) {
       this.events.onSongChanged(song);
     }
@@ -401,7 +407,7 @@ export class UIController {
    */
   private handleValidationChanged(result: ValidationResult): void {
     this.stateManager.setValidationResult(result);
-    
+
     if (this.events.onValidationChanged) {
       this.events.onValidationChanged(result);
     }
@@ -420,16 +426,19 @@ export class UIController {
   private handleFileLoaded(content: string, filename: string): void {
     // Show loading state for file processing
     LoadingUtils.showFileLoading(filename);
-    
+
     try {
       if (this.realTimeApp) {
         this.realTimeApp.setText(content);
       }
-      
+
       LoadingUtils.hide();
-      
+
       if (this.notificationSystem) {
-        this.notificationSystem.showSuccess('File Loaded', `"${filename}" loaded successfully`);
+        this.notificationSystem.showSuccess(
+          'File Loaded',
+          `"${filename}" loaded successfully`
+        );
       }
     } catch (error) {
       LoadingUtils.error(error as Error);
@@ -467,9 +476,12 @@ export class UIController {
     if (this.realTimeApp) {
       this.realTimeApp.setText(notation);
     }
-    
+
     if (this.notificationSystem) {
-      this.notificationSystem.showInfo('Example Loaded', `Example "${title}" loaded`);
+      this.notificationSystem.showInfo(
+        'Example Loaded',
+        `Example "${title}" loaded`
+      );
     }
   }
 
@@ -487,11 +499,11 @@ export class UIController {
    */
   private handleError(error: ValidationError): void {
     this.stateManager.addError(error);
-    
+
     if (this.errorManager) {
       this.errorManager.handleError(error, {}, '');
     }
-    
+
     if (this.events.onError) {
       this.events.onError(error);
     }
@@ -507,7 +519,7 @@ export class UIController {
           type: 'PERFORMANCE_WARNING' as any,
           message: 'No chart available to export',
           line: 0,
-          position: 0
+          position: 0,
         });
       }
       return;
@@ -515,8 +527,10 @@ export class UIController {
 
     if (this.exportManager && this.realTimeApp) {
       const song = this.stateManager.getState().currentSong;
-      const filename = song ? `${song.title.toLowerCase().replace(/\s+/g, '-')}.png` : undefined;
-      
+      const filename = song
+        ? `${song.title.toLowerCase().replace(/\s+/g, '-')}.png`
+        : undefined;
+
       this.exportManager.exportChart(filename);
     }
   }
@@ -528,13 +542,13 @@ export class UIController {
     if (this.realTimeApp) {
       this.realTimeApp.clear();
     }
-    
+
     if (this.inputManager) {
       this.inputManager.clear();
     }
-    
+
     this.stateManager.clearErrors();
-    
+
     if (this.notificationSystem) {
       this.notificationSystem.showInfo('Content Cleared', 'Content cleared');
     }
@@ -546,7 +560,7 @@ export class UIController {
   // @ts-ignore - unused method
   private handleExportStarted(): void {
     this.stateManager.setExporting(true);
-    
+
     if (this.events.onExportStarted) {
       this.events.onExportStarted();
     }
@@ -555,14 +569,17 @@ export class UIController {
   /**
    * Handle export completed
    */
-  // @ts-ignore - unused method  
+  // @ts-ignore - unused method
   private handleExportCompleted(filename: string): void {
     this.stateManager.setExporting(false);
-    
+
     if (this.notificationSystem) {
-      this.notificationSystem.showSuccess('Export Complete', `Chart exported as "${filename}"`);
+      this.notificationSystem.showSuccess(
+        'Export Complete',
+        `Chart exported as "${filename}"`
+      );
     }
-    
+
     if (this.events.onExportCompleted) {
       this.events.onExportCompleted(filename);
     }
@@ -574,13 +591,13 @@ export class UIController {
   // @ts-ignore - unused method
   private handleExportError(error: Error): void {
     this.stateManager.setExporting(false);
-    
+
     const validationError: ValidationError = {
       type: 'export_error' as any,
       message: `Export failed: ${error.message}`,
-      suggestions: ['Try again', 'Check if chart is properly rendered']
+      suggestions: ['Try again', 'Check if chart is properly rendered'],
     };
-    
+
     this.handleError(validationError);
   }
 
@@ -589,13 +606,13 @@ export class UIController {
    */
   private handleGlobalError(error: any): void {
     console.error('UIController: Global error:', error);
-    
+
     const validationError: ValidationError = {
       type: 'parsing_error' as any,
       message: `Unexpected error: ${error?.message || 'Unknown error'}`,
-      suggestions: ['Refresh the page', 'Try a different input']
+      suggestions: ['Refresh the page', 'Try a different input'],
     };
-    
+
     this.handleError(validationError);
   }
 
@@ -604,10 +621,10 @@ export class UIController {
    */
   private updateResponsiveLayout(): void {
     const isMobile = window.innerWidth < 768;
-    
+
     // Update state manager
     this.stateManager.updateUIState({ isMobile });
-    
+
     // Update DOM classes for CSS styling
     if (isMobile) {
       document.body.classList.add('mobile-layout');
@@ -696,7 +713,7 @@ export class UIController {
    */
   public updateChartConfig(config: Partial<ChartConfig>): void {
     this.stateManager.updateChartConfig(config);
-    
+
     if (this.realTimeApp) {
       this.realTimeApp.updateChartConfig(config);
     }
@@ -714,23 +731,26 @@ export class UIController {
    */
   private performMemoryCleanup(): void {
     console.log('UIController: Performing memory cleanup');
-    
+
     // Clear caches in components
     if (this.realTimeApp) {
       // Clear any cached data in real-time app
       (this.realTimeApp as any).clearCache?.();
     }
-    
+
     // Clear state manager caches
     this.stateManager.clearErrors();
-    
+
     // Force garbage collection if available
     if ((window as any).gc) {
       (window as any).gc();
     }
-    
+
     if (this.notificationSystem) {
-      this.notificationSystem.showInfo('Memory Cleanup', 'Memory cleanup completed');
+      this.notificationSystem.showInfo(
+        'Memory Cleanup',
+        'Memory cleanup completed'
+      );
     }
   }
 
@@ -739,24 +759,28 @@ export class UIController {
    */
   public async runPerformanceTests(): Promise<void> {
     if (this.loadingManager) {
-      this.loadingManager.startLoading('performance-test', 'Running performance tests...', 10000);
+      this.loadingManager.startLoading(
+        'performance-test',
+        'Running performance tests...',
+        10000
+      );
     }
-    
+
     try {
       const results = await globalPerformanceTester.runAllTests();
       const report = globalPerformanceTester.generateReport();
-      
+
       console.log('Performance Test Results:', report);
-      
+
       if (this.loadingManager) {
         this.loadingManager.endLoading();
       }
-      
+
       if (this.notificationSystem) {
-        const passedTests = results.filter(r => r.passed).length;
+        const passedTests = results.filter((r) => r.passed).length;
         const totalTests = results.length;
         this.notificationSystem.showInfo(
-          'Performance Tests Complete', 
+          'Performance Tests Complete',
           `${passedTests}/${totalTests} tests passed`
         );
       }
@@ -777,7 +801,7 @@ export class UIController {
   } {
     return {
       memory: globalMemoryMonitor.getMemoryStats(),
-      testResults: globalPerformanceTester.getResults()
+      testResults: globalPerformanceTester.getResults(),
     };
   }
 
@@ -787,41 +811,41 @@ export class UIController {
   public destroy(): void {
     // Stop performance monitoring
     globalMemoryMonitor.stopMonitoring();
-    
+
     // Clean up components
     if (this.inputManager) {
       this.inputManager.destroy();
     }
-    
+
     if (this.realTimeApp) {
       this.realTimeApp.destroy();
     }
-    
+
     if (this.exportManager) {
       this.exportManager.destroy();
     }
-    
+
     if (this.errorManager) {
       this.errorManager.destroy();
     }
-    
+
     if (this.notificationSystem) {
       this.notificationSystem.destroy();
     }
-    
+
     if (this.loadingManager) {
       this.loadingManager.destroy();
     }
-    
+
     if (this.stateManager) {
       this.stateManager.destroy();
     }
-    
+
     // Remove event listeners
     // (Most are cleaned up by individual components)
-    
+
     this.isInitialized = false;
-    
+
     console.log('UIController: Destroyed');
   }
 }

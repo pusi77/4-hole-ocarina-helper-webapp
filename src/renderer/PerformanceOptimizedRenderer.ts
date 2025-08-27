@@ -4,7 +4,12 @@
  */
 
 import { ChartRenderer } from './ChartRenderer.js';
-import type { Song, FingeringPattern, ChartConfig, LayoutInfo } from '../types/index.js';
+import type {
+  Song,
+  FingeringPattern,
+  ChartConfig,
+  LayoutInfo,
+} from '../types/index.js';
 
 interface DirtyRegion {
   x: number;
@@ -30,7 +35,7 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
   private pendingRender: number | null = null;
   // @ts-ignore - reserved for future performance tracking
   private lastFrameTime: number = 0;
-  // @ts-ignore - reserved for future performance tracking  
+  // @ts-ignore - reserved for future performance tracking
   private frameCount: number = 0;
   private performanceMetrics: {
     averageRenderTime: number;
@@ -42,27 +47,30 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
 
   constructor(canvas: HTMLCanvasElement, config: ChartConfig) {
     super(canvas, config);
-    
+
     this.renderCache = {
       patterns: new Map(),
       layout: null,
       song: null,
-      lastRenderTime: 0
+      lastRenderTime: 0,
     };
-    
+
     this.performanceMetrics = {
       averageRenderTime: 0,
       lastRenderTime: 0,
       totalRenders: 0,
       cacheHits: 0,
-      cacheMisses: 0
+      cacheMisses: 0,
     };
   }
 
   /**
    * Enhanced render method with dirty region tracking
    */
-  renderChart(song: Song, fingeringPatterns: Map<string, FingeringPattern>): void {
+  renderChart(
+    song: Song,
+    fingeringPatterns: Map<string, FingeringPattern>
+  ): void {
     // Prevent concurrent renders
     if (this.isRendering) {
       this.scheduleRender(() => this.renderChart(song, fingeringPatterns));
@@ -84,7 +92,7 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
       // Calculate layout and update canvas if needed
       const layout = this.calculateLayout(song);
       const layoutChanged = !this.layoutEquals(layout, this.renderCache.layout);
-      
+
       if (layoutChanged) {
         this.updateCanvasSize(layout);
         this.markEntireCanvasDirty();
@@ -101,7 +109,6 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
       // Update cache
       this.updateRenderCache(song, layout);
       this.clearDirtyRegions();
-
     } finally {
       this.isRendering = false;
       const endTime = performance.now();
@@ -135,7 +142,8 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
     return (
       this.renderCache.song.title === song.title &&
       this.renderCache.song.lines.length === song.lines.length &&
-      JSON.stringify(this.renderCache.song.lines) === JSON.stringify(song.lines) &&
+      JSON.stringify(this.renderCache.song.lines) ===
+        JSON.stringify(song.lines) &&
       this.dirtyRegions.length === 0
     );
   }
@@ -143,9 +151,12 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
   /**
    * Compare two layouts for equality
    */
-  private layoutEquals(layout1: LayoutInfo | null, layout2: LayoutInfo | null): boolean {
+  private layoutEquals(
+    layout1: LayoutInfo | null,
+    layout2: LayoutInfo | null
+  ): boolean {
     if (!layout1 || !layout2) return false;
-    
+
     return (
       layout1.totalWidth === layout2.totalWidth &&
       layout1.totalHeight === layout2.totalHeight &&
@@ -159,28 +170,28 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
    * Render only dirty regions
    */
   private renderDirtyRegions(
-    song: Song, 
-    fingeringPatterns: Map<string, FingeringPattern>, 
+    song: Song,
+    fingeringPatterns: Map<string, FingeringPattern>,
     layout: LayoutInfo
   ): void {
     const ctx = this.getContext();
-    
-    this.dirtyRegions.forEach(region => {
+
+    this.dirtyRegions.forEach((region) => {
       // Save current state
       ctx.save();
-      
+
       // Clip to dirty region
       ctx.beginPath();
       ctx.rect(region.x, region.y, region.width, region.height);
       ctx.clip();
-      
+
       // Clear the region
       ctx.fillStyle = this.getConfig().colors.background;
       ctx.fillRect(region.x, region.y, region.width, region.height);
-      
+
       // Render content that intersects with this region
       this.renderRegionContent(song, fingeringPatterns, layout, region);
-      
+
       // Restore state
       ctx.restore();
     });
@@ -200,9 +211,9 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
       x: 0,
       y: 0,
       width: this.getConfig().canvasWidth,
-      height: layout.margins.top + this.getConfig().spacing * 2
+      height: layout.margins.top + this.getConfig().spacing * 2,
     };
-    
+
     if (this.regionsIntersect(region, titleRegion)) {
       // Call parent renderChart method instead of private methods
       super.renderChart(song, fingeringPatterns);
@@ -210,12 +221,15 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
 
     // Check which lines intersect with the region
     song.lines.forEach((_line, lineIndex) => {
-      const lineY = layout.margins.top + this.getConfig().spacing * 2 + (lineIndex * layout.lineHeight);
+      const lineY =
+        layout.margins.top +
+        this.getConfig().spacing * 2 +
+        lineIndex * layout.lineHeight;
       const lineRegion = {
         x: 0,
         y: lineY,
         width: this.getConfig().canvasWidth,
-        height: layout.lineHeight
+        height: layout.lineHeight,
       };
 
       if (this.regionsIntersect(region, lineRegion)) {
@@ -228,7 +242,10 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
   /**
    * Check if two regions intersect
    */
-  private regionsIntersect(region1: DirtyRegion, region2: DirtyRegion): boolean {
+  private regionsIntersect(
+    region1: DirtyRegion,
+    region2: DirtyRegion
+  ): boolean {
     return !(
       region1.x + region1.width < region2.x ||
       region2.x + region2.width < region1.x ||
@@ -252,7 +269,12 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
   /**
    * Mark a region as dirty for next render
    */
-  public markRegionDirty(x: number, y: number, width: number, height: number): void {
+  public markRegionDirty(
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): void {
     this.dirtyRegions.push({ x, y, width, height });
     this.coalesceDirtyRegions();
   }
@@ -261,12 +283,14 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
    * Mark the entire canvas as dirty
    */
   public markEntireCanvasDirty(): void {
-    this.dirtyRegions = [{
-      x: 0,
-      y: 0,
-      width: this.getConfig().canvasWidth,
-      height: this.getConfig().canvasHeight
-    }];
+    this.dirtyRegions = [
+      {
+        x: 0,
+        y: 0,
+        width: this.getConfig().canvasWidth,
+        height: this.getConfig().canvasHeight,
+      },
+    ];
   }
 
   /**
@@ -276,11 +300,13 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
     if (this.dirtyRegions.length <= 1) return;
 
     const coalesced: DirtyRegion[] = [];
-    const sorted = [...this.dirtyRegions].sort((a, b) => a.x - b.x || a.y - b.y);
+    const sorted = [...this.dirtyRegions].sort(
+      (a, b) => a.x - b.x || a.y - b.y
+    );
 
     for (const region of sorted) {
       let merged = false;
-      
+
       for (let i = 0; i < coalesced.length; i++) {
         if (this.canMergeRegions(coalesced[i], region)) {
           coalesced[i] = this.mergeRegions(coalesced[i], region);
@@ -288,7 +314,7 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
           break;
         }
       }
-      
+
       if (!merged) {
         coalesced.push(region);
       }
@@ -303,27 +329,34 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
   private canMergeRegions(region1: DirtyRegion, region2: DirtyRegion): boolean {
     // Simple heuristic: merge if they overlap or are close enough
     const threshold = 10; // pixels
-    
+
     return (
-      Math.abs(region1.x - region2.x) <= threshold &&
-      Math.abs(region1.y - region2.y) <= threshold
-    ) || this.regionsIntersect(region1, region2);
+      (Math.abs(region1.x - region2.x) <= threshold &&
+        Math.abs(region1.y - region2.y) <= threshold) ||
+      this.regionsIntersect(region1, region2)
+    );
   }
 
   /**
    * Merge two regions into one
    */
-  private mergeRegions(region1: DirtyRegion, region2: DirtyRegion): DirtyRegion {
+  private mergeRegions(
+    region1: DirtyRegion,
+    region2: DirtyRegion
+  ): DirtyRegion {
     const minX = Math.min(region1.x, region2.x);
     const minY = Math.min(region1.y, region2.y);
     const maxX = Math.max(region1.x + region1.width, region2.x + region2.width);
-    const maxY = Math.max(region1.y + region1.height, region2.y + region2.height);
+    const maxY = Math.max(
+      region1.y + region1.height,
+      region2.y + region2.height
+    );
 
     return {
       x: minX,
       y: minY,
       width: maxX - minX,
-      height: maxY - minY
+      height: maxY - minY,
     };
   }
 
@@ -349,11 +382,12 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
   private updatePerformanceMetrics(renderTime: number): void {
     this.performanceMetrics.lastRenderTime = renderTime;
     this.performanceMetrics.totalRenders++;
-    
+
     // Calculate rolling average
     const alpha = 0.1; // Smoothing factor
-    this.performanceMetrics.averageRenderTime = 
-      this.performanceMetrics.averageRenderTime * (1 - alpha) + renderTime * alpha;
+    this.performanceMetrics.averageRenderTime =
+      this.performanceMetrics.averageRenderTime * (1 - alpha) +
+      renderTime * alpha;
   }
 
   /**
@@ -371,14 +405,14 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
     this.renderCache.layout = null;
     this.renderCache.song = null;
     this.dirtyRegions = [];
-    
+
     // Reset metrics
     this.performanceMetrics = {
       averageRenderTime: 0,
       lastRenderTime: 0,
       totalRenders: 0,
       cacheHits: 0,
-      cacheMisses: 0
+      cacheMisses: 0,
     };
   }
 
@@ -392,17 +426,17 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
   } {
     const cacheSize = this.renderCache.patterns.size;
     const dirtyRegions = this.dirtyRegions.length;
-    
+
     // Rough estimate of memory usage
     let estimatedBytes = 0;
     this.renderCache.patterns.forEach((imageData) => {
       estimatedBytes += imageData.data.length * 4; // 4 bytes per pixel (RGBA)
     });
-    
+
     return {
       cacheSize,
       dirtyRegions,
-      estimatedBytes
+      estimatedBytes,
     };
   }
 
@@ -425,7 +459,7 @@ export class PerformanceOptimizedRenderer extends ChartRenderer {
       cancelAnimationFrame(this.pendingRender);
       this.pendingRender = null;
     }
-    
+
     this.clearCache();
   }
 }

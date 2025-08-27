@@ -26,7 +26,7 @@ F G A C D`;
       expect(song.lines).toEqual([
         ['F', 'G', 'A'],
         ['F', 'G', 'A'],
-        ['F', 'G', 'A', 'C', 'D']
+        ['F', 'G', 'A', 'C', 'D'],
       ]);
       expect(song.metadata?.noteCount).toBe(11);
       expect(song.metadata?.originalInput).toBe(input);
@@ -69,7 +69,7 @@ F-G-A`;
         ['F', 'G', 'A'],
         ['F', 'G', 'A'],
         ['F', 'G', 'A'],
-        ['F', 'G', 'A']
+        ['F', 'G', 'A'],
       ]);
     });
 
@@ -85,7 +85,7 @@ G A Bb`;
       expect(song.lines).toEqual([
         ['F', 'G', 'A'],
         ['C', 'D', 'E'],
-        ['G', 'A', 'Bb']
+        ['G', 'A', 'Bb'],
       ]);
     });
 
@@ -110,7 +110,9 @@ F G A`;
       const result = parser.validateInput('');
       expect(result.isValid).toBe(false);
       expect(result.errors[0].type).toBe(ErrorType.EMPTY_INPUT);
-      expect(result.errors[0].suggestions).toContain('Enter song notation or load an example song');
+      expect(result.errors[0].suggestions).toContain(
+        'Enter song notation or load an example song'
+      );
     });
 
     it('should reject whitespace-only input', () => {
@@ -123,7 +125,9 @@ F G A`;
       const result = parser.validateInput('Just a title');
       expect(result.isValid).toBe(false);
       expect(result.errors[0].type).toBe(ErrorType.PARSING_ERROR);
-      expect(result.errors[0].message).toContain('title and at least one line of notes');
+      expect(result.errors[0].message).toContain(
+        'title and at least one line of notes'
+      );
     });
 
     it('should detect unsupported notes', () => {
@@ -134,7 +138,9 @@ F G X Y Z`;
       expect(result.isValid).toBe(false);
       expect(result.errors).toHaveLength(3); // X, Y, Z are unsupported
       expect(result.errors[0].type).toBe(ErrorType.UNSUPPORTED_NOTE);
-      expect(result.errors[0].suggestions).toContain('Supported notes: F, G, A, Bb, C, D, E');
+      expect(result.errors[0].suggestions).toContain(
+        'Supported notes: F, G, A, Bb, C, D, E'
+      );
     });
 
     it('should warn about B to Bb conversion', () => {
@@ -145,7 +151,9 @@ F G B`;
       expect(result.isValid).toBe(true);
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0].type).toBe(WarningType.NOTE_CONVERSION);
-      expect(result.warnings[0].message).toContain('B\' will be converted to \'Bb\'');
+      expect(result.warnings[0].message).toContain(
+        "B' will be converted to 'Bb'"
+      );
     });
 
     it('should warn about empty lines', () => {
@@ -212,7 +220,15 @@ F G A Bb C D E`;
     });
 
     it('should leave other notes unchanged', () => {
-      const { notes, warnings } = parser.convertNotes(['F', 'G', 'A', 'Bb', 'C', 'D', 'E']);
+      const { notes, warnings } = parser.convertNotes([
+        'F',
+        'G',
+        'A',
+        'Bb',
+        'C',
+        'D',
+        'E',
+      ]);
       expect(notes).toEqual(['F', 'G', 'A', 'Bb', 'C', 'D', 'E']);
       expect(warnings).toHaveLength(0);
     });
@@ -250,7 +266,7 @@ f g a bb c d e`;
       expect(song.title).toBe('Test Song');
       expect(song.lines).toEqual([
         ['F', 'G', 'A'],
-        ['C', 'D', 'E']
+        ['C', 'D', 'E'],
       ]);
     });
 
@@ -260,7 +276,7 @@ f g a bb c d e`;
       const song = parser.parseSong(input);
       expect(song.lines).toEqual([
         ['F', 'G', 'A'],
-        ['C', 'D', 'E']
+        ['C', 'D', 'E'],
       ]);
     });
 
@@ -298,7 +314,7 @@ F G X A Y`;
     it('should respect custom limits', () => {
       const parser = new NoteParser({
         maxLines: 5,
-        maxNotesPerLine: 15
+        maxNotesPerLine: 15,
       });
 
       const longInput = `Title

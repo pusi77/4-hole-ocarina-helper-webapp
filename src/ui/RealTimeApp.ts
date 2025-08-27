@@ -3,13 +3,16 @@
  * Orchestrates the interaction between text input, validation, and chart preview
  */
 
-import type { 
-  ValidationResult, 
-  ValidationError, 
+import type {
+  ValidationResult,
+  ValidationError,
   Song,
-  ChartConfig
+  ChartConfig,
 } from '../types/index.js';
-import { RealTimeTextInput, type RealTimeInputEvents } from './RealTimeTextInput.js';
+import {
+  RealTimeTextInput,
+  type RealTimeInputEvents,
+} from './RealTimeTextInput.js';
 import { PreviewController } from './PreviewController.js';
 
 /**
@@ -63,34 +66,36 @@ export class RealTimeApp {
   ) {
     this.events = events;
     this.titleInput = titleInput || null;
-    
+
     // Create preview controller
     this.previewController = new PreviewController(
       canvas,
       config.previewConfig,
       config.chartConfig
     );
-    
+
     // Create text input with event handlers
     const textInputEvents: RealTimeInputEvents = {
       onSongParsed: this.handleSongParsed.bind(this),
       onValidationResult: this.handleValidationResult.bind(this),
       onError: this.handleError.bind(this),
       onTextChange: this.handleTextChange.bind(this),
-      getTitleForParsing: this.titleInput ? () => this.getCurrentTitle() : undefined
+      getTitleForParsing: this.titleInput
+        ? () => this.getCurrentTitle()
+        : undefined,
     };
-    
+
     this.textInput = new RealTimeTextInput(
       textArea,
       textInputEvents,
       config.textInputConfig
     );
-    
+
     // Set up title input handling if provided
     if (this.titleInput) {
       this.setupTitleInput();
     }
-    
+
     // Set up resize handling
     this.setupResizeHandling();
   }
@@ -100,10 +105,10 @@ export class RealTimeApp {
    */
   private handleSongParsed(song: Song): void {
     this.currentSong = song;
-    
+
     // Update preview
     this.previewController.updatePreview(song);
-    
+
     // Notify external listeners
     if (this.events.onSongChanged) {
       this.events.onSongChanged(song);
@@ -115,17 +120,17 @@ export class RealTimeApp {
    */
   private handleValidationResult(result: ValidationResult): void {
     this.currentValidation = result;
-    
+
     // If validation failed, clear the current song and show error state
     if (!result.isValid) {
       this.currentSong = null;
       this.previewController.handleValidationError();
-      
+
       if (this.events.onSongChanged) {
         this.events.onSongChanged(null);
       }
     }
-    
+
     // Notify external listeners
     if (this.events.onValidationChanged) {
       this.events.onValidationChanged(result);
@@ -139,11 +144,11 @@ export class RealTimeApp {
     // Clear current song on error
     this.currentSong = null;
     this.previewController.handleValidationError();
-    
+
     if (this.events.onSongChanged) {
       this.events.onSongChanged(null);
     }
-    
+
     // Notify external listeners
     if (this.events.onError) {
       this.events.onError(error);
@@ -159,12 +164,12 @@ export class RealTimeApp {
       this.currentSong = null;
       this.currentValidation = null;
       this.previewController.clearPreview();
-      
+
       if (this.events.onSongChanged) {
         this.events.onSongChanged(null);
       }
     }
-    
+
     // Notify external listeners
     if (this.events.onTextChanged) {
       this.events.onTextChanged(text);
@@ -176,13 +181,13 @@ export class RealTimeApp {
    */
   private setupTitleInput(): void {
     if (!this.titleInput) return;
-    
+
     // Handle title changes
     const handleTitleChange = () => {
       // Re-trigger parsing with new title
       this.textInput.triggerReparse();
     };
-    
+
     this.titleInput.addEventListener('input', handleTitleChange);
     this.titleInput.addEventListener('blur', handleTitleChange);
   }
@@ -218,16 +223,16 @@ export class RealTimeApp {
    */
   private setupResizeHandling(): void {
     let resizeTimeout: ReturnType<typeof setTimeout>;
-    
+
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         this.previewController.resize();
       }, 150);
     };
-    
+
     window.addEventListener('resize', handleResize);
-    
+
     // Initial resize
     setTimeout(() => this.previewController.resize(), 100);
   }
@@ -238,8 +243,8 @@ export class RealTimeApp {
    */
   public setText(text: string): void {
     const lines = text.split('\n');
-    
-    // If we have a title input and the text has multiple lines, 
+
+    // If we have a title input and the text has multiple lines,
     // try to extract the title from the first line
     if (this.titleInput && lines.length > 1) {
       const firstLine = lines[0].trim();
@@ -252,7 +257,7 @@ export class RealTimeApp {
         return;
       }
     }
-    
+
     // Otherwise, set the full text as notation
     this.textInput.setText(text);
   }
@@ -309,7 +314,7 @@ export class RealTimeApp {
     if (!this.canExport()) {
       throw new Error('No chart available to export');
     }
-    
+
     this.previewController.exportChart(filename);
   }
 
@@ -320,7 +325,7 @@ export class RealTimeApp {
     if (!this.canExport()) {
       throw new Error('No chart available to export');
     }
-    
+
     return this.previewController.getExportDataURL();
   }
 
@@ -331,14 +336,16 @@ export class RealTimeApp {
     if (!this.canExport()) {
       throw new Error('No chart available to export');
     }
-    
+
     return this.previewController.exportAsBlob();
   }
 
   /**
    * Update text input configuration
    */
-  public updateTextInputConfig(config: RealTimeAppConfig['textInputConfig']): void {
+  public updateTextInputConfig(
+    config: RealTimeAppConfig['textInputConfig']
+  ): void {
     if (config) {
       this.textInput.updateConfig(config);
     }
@@ -370,10 +377,12 @@ export class RealTimeApp {
   } {
     return {
       hasCurrentSong: this.currentSong !== null,
-      validationState: this.currentValidation 
-        ? (this.currentValidation.isValid ? 'valid' : 'invalid')
+      validationState: this.currentValidation
+        ? this.currentValidation.isValid
+          ? 'valid'
+          : 'invalid'
         : 'none',
-      textLength: this.getText().length
+      textLength: this.getText().length,
     };
   }
 
@@ -383,7 +392,7 @@ export class RealTimeApp {
   public destroy(): void {
     this.textInput.destroy();
     this.previewController.destroy();
-    
+
     // Clear references
     this.currentSong = null;
     this.currentValidation = null;

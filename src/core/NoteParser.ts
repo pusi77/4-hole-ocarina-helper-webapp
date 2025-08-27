@@ -8,13 +8,9 @@ import type {
   ValidationResult,
   ValidationError,
   ValidationWarning,
-  SupportedNote
+  SupportedNote,
 } from '../types/index.js';
-import {
-  ErrorType,
-  WarningType,
-  SUPPORTED_NOTES
-} from '../types/index.js';
+import { ErrorType, WarningType, SUPPORTED_NOTES } from '../types/index.js';
 
 /**
  * Configuration for note parsing behavior
@@ -33,7 +29,7 @@ const DEFAULT_CONFIG: ParseConfig = {
   autoConvertB: true,
   strictValidation: true,
   maxLines: 100,
-  maxNotesPerLine: 50
+  maxNotesPerLine: 50,
 };
 
 /**
@@ -53,9 +49,11 @@ export class NoteParser {
    */
   parseSong(input: string): Song {
     const validation = this.validateInput(input);
-    
+
     if (!validation.isValid) {
-      throw new Error(`Parsing failed: ${validation.errors.map(e => e.message).join(', ')}`);
+      throw new Error(
+        `Parsing failed: ${validation.errors.map((e) => e.message).join(', ')}`
+      );
     }
 
     const lines = this.preprocessInput(input);
@@ -68,8 +66,8 @@ export class NoteParser {
       metadata: {
         originalInput: input,
         parseTimestamp: new Date(),
-        noteCount: noteLines.flat().length
-      }
+        noteCount: noteLines.flat().length,
+      },
     };
   }
 
@@ -87,19 +85,21 @@ export class NoteParser {
       errors.push({
         type: ErrorType.EMPTY_INPUT,
         message: 'Input cannot be empty',
-        suggestions: ['Enter song notation or load an example song']
+        suggestions: ['Enter song notation or load an example song'],
       });
       return { isValid: false, errors, warnings };
     }
 
     const lines = this.preprocessInput(input);
-    
+
     // Check for minimum content (title + at least one line of notes)
     if (lines.length < 2) {
       errors.push({
         type: ErrorType.PARSING_ERROR,
         message: 'Input must contain a title and at least one line of notes',
-        suggestions: ['Add a title on the first line and notes on subsequent lines']
+        suggestions: [
+          'Add a title on the first line and notes on subsequent lines',
+        ],
       });
     }
 
@@ -108,7 +108,7 @@ export class NoteParser {
       errors.push({
         type: ErrorType.PARSING_ERROR,
         message: `Too many lines (${lines.length}). Maximum allowed: ${this.config.maxLines}`,
-        suggestions: ['Split large songs into smaller sections']
+        suggestions: ['Split large songs into smaller sections'],
       });
     }
 
@@ -122,7 +122,7 @@ export class NoteParser {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -131,7 +131,10 @@ export class NoteParser {
    * @param notes Array of note strings
    * @returns Converted notes array and warnings
    */
-  convertNotes(notes: string[]): { notes: string[]; warnings: ValidationWarning[] } {
+  convertNotes(notes: string[]): {
+    notes: string[];
+    warnings: ValidationWarning[];
+  } {
     const warnings: ValidationWarning[] = [];
     const convertedNotes: string[] = [];
 
@@ -140,7 +143,7 @@ export class NoteParser {
         convertedNotes.push('Bb');
         warnings.push({
           type: WarningType.NOTE_CONVERSION,
-          message: `Converted 'B' to 'Bb' (4-hole ocarinas use Bb instead of B)`
+          message: `Converted 'B' to 'Bb' (4-hole ocarinas use Bb instead of B)`,
         });
       } else {
         convertedNotes.push(note);
@@ -156,9 +159,7 @@ export class NoteParser {
    * @returns Array of cleaned lines
    */
   private preprocessInput(input: string): string[] {
-    return input
-      .split(/\r?\n/)
-      .map(line => line.trim());
+    return input.split(/\r?\n/).map((line) => line.trim());
   }
 
   /**
@@ -172,16 +173,14 @@ export class NoteParser {
     }
 
     const titleLine = lines[0].trim();
-    
+
     // If first line is empty, use default title
     if (titleLine.length === 0) {
       return 'Untitled Song';
     }
-    
+
     // Remove common prefixes like "Title:", "Song:", etc.
-    const cleanTitle = titleLine
-      .replace(/^(title|song|name):\s*/i, '')
-      .trim();
+    const cleanTitle = titleLine.replace(/^(title|song|name):\s*/i, '').trim();
 
     return cleanTitle || 'Untitled Song';
   }
@@ -216,14 +215,14 @@ export class NoteParser {
   private parseNotesFromLine(line: string): string[] {
     // Split by common separators: space, comma, pipe, dash
     const rawNotes = line
-      .split(/[\s,|\-]+/)
-      .map(note => note.trim())
-      .filter(note => note.length > 0);
+      .split(/[\s,|-]+/)
+      .map((note) => note.trim())
+      .filter((note) => note.length > 0);
 
     const { notes } = this.convertNotes(rawNotes);
-    
+
     // Normalize case for supported notes
-    return notes.map(note => {
+    return notes.map((note) => {
       const upperNote = note.toUpperCase();
       if (upperNote === 'BB') return 'Bb';
       if (SUPPORTED_NOTES.includes(upperNote as SupportedNote)) {
@@ -247,16 +246,16 @@ export class NoteParser {
       warnings.push({
         type: WarningType.EMPTY_LINE,
         message: `Line ${lineNumber} is empty`,
-        line: lineNumber
+        line: lineNumber,
       });
       return { isValid: true, errors, warnings };
     }
 
     // Parse raw notes before conversion to check for B notes
     const rawNotes = line
-      .split(/[\s,|\-]+/)
-      .map(note => note.trim())
-      .filter(note => note.length > 0);
+      .split(/[\s,|-]+/)
+      .map((note) => note.trim())
+      .filter((note) => note.length > 0);
 
     // Check for B notes that will be converted
     for (let i = 0; i < rawNotes.length; i++) {
@@ -265,7 +264,7 @@ export class NoteParser {
           type: WarningType.NOTE_CONVERSION,
           message: `Note 'B' will be converted to 'Bb'`,
           line: lineNumber,
-          position: i + 1
+          position: i + 1,
         });
       }
     }
@@ -278,7 +277,7 @@ export class NoteParser {
         type: ErrorType.PARSING_ERROR,
         message: `Too many notes on line ${lineNumber} (${notes.length}). Maximum: ${this.config.maxNotesPerLine}`,
         line: lineNumber,
-        suggestions: ['Split long lines into multiple shorter lines']
+        suggestions: ['Split long lines into multiple shorter lines'],
       });
     }
 
@@ -288,13 +287,17 @@ export class NoteParser {
       const noteValidation = this.validateNote(note, lineNumber, i + 1);
       errors.push(...noteValidation.errors);
       // Don't add conversion warnings here since we already added them above
-      warnings.push(...noteValidation.warnings.filter(w => w.type !== WarningType.NOTE_CONVERSION));
+      warnings.push(
+        ...noteValidation.warnings.filter(
+          (w) => w.type !== WarningType.NOTE_CONVERSION
+        )
+      );
     }
 
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -305,12 +308,17 @@ export class NoteParser {
    * @param position Position in line for error reporting
    * @returns ValidationResult for the note
    */
-  private validateNote(note: string, lineNumber: number, position: number): ValidationResult {
+  private validateNote(
+    note: string,
+    lineNumber: number,
+    position: number
+  ): ValidationResult {
     const errors: ValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
     // Normalize note for comparison (handle case insensitive)
-    const normalizedNote = note.charAt(0).toUpperCase() + note.slice(1).toLowerCase();
+    const normalizedNote =
+      note.charAt(0).toUpperCase() + note.slice(1).toLowerCase();
 
     // Check if note is supported (after normalization)
     if (!SUPPORTED_NOTES.includes(normalizedNote as SupportedNote)) {
@@ -321,7 +329,7 @@ export class NoteParser {
             type: WarningType.NOTE_CONVERSION,
             message: `Note 'B' will be converted to 'Bb'`,
             line: lineNumber,
-            position
+            position,
           });
         } else {
           errors.push({
@@ -329,7 +337,10 @@ export class NoteParser {
             message: `Unsupported note '${note}' at line ${lineNumber}, position ${position}`,
             line: lineNumber,
             position,
-            suggestions: ['Use Bb instead of B for 4-hole ocarinas', ...SUPPORTED_NOTES]
+            suggestions: [
+              'Use Bb instead of B for 4-hole ocarinas',
+              ...SUPPORTED_NOTES,
+            ],
           });
         }
       } else {
@@ -338,7 +349,7 @@ export class NoteParser {
           message: `Unsupported note '${note}' at line ${lineNumber}, position ${position}`,
           line: lineNumber,
           position,
-          suggestions: [`Supported notes: ${SUPPORTED_NOTES.join(', ')}`]
+          suggestions: [`Supported notes: ${SUPPORTED_NOTES.join(', ')}`],
         });
       }
     }
@@ -346,7 +357,7 @@ export class NoteParser {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 

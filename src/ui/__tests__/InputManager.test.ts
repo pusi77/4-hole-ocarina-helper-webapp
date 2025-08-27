@@ -16,7 +16,7 @@ describe('InputManager', () => {
       onFileLoaded: vi.fn(),
       onTextInput: vi.fn(),
       onValidationResult: vi.fn(),
-      onError: vi.fn()
+      onError: vi.fn(),
     };
     inputManager = new InputManager(mockEvents);
   });
@@ -30,14 +30,14 @@ describe('InputManager', () => {
     const mockTextArea = {
       value: '',
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     } as unknown as HTMLTextAreaElement;
-    
+
     inputManager.initialize({ textArea: mockTextArea });
-    
+
     const testText = 'Test Song\nF G A';
     inputManager.setText(testText);
-    
+
     expect(mockTextArea.value).toBe(testText);
     expect(inputManager.getText()).toBe(testText);
   });
@@ -45,7 +45,7 @@ describe('InputManager', () => {
   it('should clear text', () => {
     inputManager.setText('Some text');
     inputManager.clear();
-    
+
     expect(inputManager.getText()).toBe('');
   });
 

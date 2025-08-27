@@ -11,7 +11,7 @@ export enum ErrorType {
   EMPTY_INPUT = 'empty_input',
   PARSING_ERROR = 'parsing_error',
   RENDERING_ERROR = 'rendering_error',
-  EXPORT_ERROR = 'export_error'
+  EXPORT_ERROR = 'export_error',
 }
 
 /**
@@ -20,7 +20,7 @@ export enum ErrorType {
 export enum WarningType {
   NOTE_CONVERSION = 'note_conversion',
   EMPTY_LINE = 'empty_line',
-  PERFORMANCE_WARNING = 'performance_warning'
+  PERFORMANCE_WARNING = 'performance_warning',
 }
 
 /**
@@ -57,10 +57,10 @@ export interface ValidationResult {
  * Supported notes for 4-hole ocarina
  */
 export const SUPPORTED_NOTES = ['F', 'G', 'A', 'Bb', 'C', 'D', 'E'] as const;
-export type SupportedNote = typeof SUPPORTED_NOTES[number];
+export type SupportedNote = (typeof SUPPORTED_NOTES)[number];
 
 /**
  * File types accepted by the application
  */
 export const ACCEPTED_FILE_TYPES = ['text/plain', 'text/txt'] as const;
-export type AcceptedFileType = typeof ACCEPTED_FILE_TYPES[number];
+export type AcceptedFileType = (typeof ACCEPTED_FILE_TYPES)[number];

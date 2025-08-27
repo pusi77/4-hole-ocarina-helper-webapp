@@ -69,13 +69,13 @@ export class PerformanceTester {
     try {
       const metrics = await test.run();
       const endTime = performance.now();
-      
+
       // Add total test time to metrics
       metrics.loadTime = endTime - startTime;
 
       const report = this.analyzeResults(test, metrics);
       this.results.push(report);
-      
+
       return report;
     } catch (error) {
       console.error(`Performance test '${testName}' failed:`, error);
@@ -98,7 +98,7 @@ export class PerformanceTester {
       for (const [testName] of this.tests) {
         await this.runTest(testName);
         // Small delay between tests to allow cleanup
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
       return this.results;
@@ -110,42 +110,61 @@ export class PerformanceTester {
   /**
    * Analyze test results and generate report
    */
-  private analyzeResults(test: PerformanceTest, metrics: PerformanceMetrics): PerformanceReport {
+  private analyzeResults(
+    test: PerformanceTest,
+    metrics: PerformanceMetrics
+  ): PerformanceReport {
     const issues: string[] = [];
     const recommendations: string[] = [];
     let score = 100;
 
     // Check render time
     if (metrics.renderTime > test.expectedThresholds.renderTime) {
-      issues.push(`Render time (${metrics.renderTime.toFixed(1)}ms) exceeds threshold (${test.expectedThresholds.renderTime}ms)`);
-      recommendations.push('Consider implementing dirty region tracking or canvas optimization');
+      issues.push(
+        `Render time (${metrics.renderTime.toFixed(1)}ms) exceeds threshold (${test.expectedThresholds.renderTime}ms)`
+      );
+      recommendations.push(
+        'Consider implementing dirty region tracking or canvas optimization'
+      );
       score -= 20;
     }
 
     // Check parse time
     if (metrics.parseTime > test.expectedThresholds.parseTime) {
-      issues.push(`Parse time (${metrics.parseTime.toFixed(1)}ms) exceeds threshold (${test.expectedThresholds.parseTime}ms)`);
-      recommendations.push('Optimize note parsing algorithm or implement caching');
+      issues.push(
+        `Parse time (${metrics.parseTime.toFixed(1)}ms) exceeds threshold (${test.expectedThresholds.parseTime}ms)`
+      );
+      recommendations.push(
+        'Optimize note parsing algorithm or implement caching'
+      );
       score -= 15;
     }
 
     // Check memory usage
     if (metrics.memoryUsage > test.expectedThresholds.memoryUsage) {
-      issues.push(`Memory usage (${metrics.memoryUsage.toFixed(1)}MB) exceeds threshold (${test.expectedThresholds.memoryUsage}MB)`);
+      issues.push(
+        `Memory usage (${metrics.memoryUsage.toFixed(1)}MB) exceeds threshold (${test.expectedThresholds.memoryUsage}MB)`
+      );
       recommendations.push('Implement memory cleanup or reduce cache size');
       score -= 25;
     }
 
     // Check FPS
     if (metrics.fps < test.expectedThresholds.fps) {
-      issues.push(`FPS (${metrics.fps.toFixed(1)}) below threshold (${test.expectedThresholds.fps})`);
-      recommendations.push('Optimize rendering loop or reduce update frequency');
+      issues.push(
+        `FPS (${metrics.fps.toFixed(1)}) below threshold (${test.expectedThresholds.fps})`
+      );
+      recommendations.push(
+        'Optimize rendering loop or reduce update frequency'
+      );
       score -= 20;
     }
 
     // Check load time
     if (metrics.loadTime > test.expectedThresholds.loadTime) {
-      issues.push(`Load time (${metrics.loadTime.toFixed(1)}ms) exceeds threshold (${test.expectedThresholds.loadTime}ms)`);
+      issues.push(
+        `Load time (${metrics.loadTime.toFixed(1)}ms) exceeds threshold (${test.expectedThresholds.loadTime}ms)`
+      );
       recommendations.push('Implement code splitting or reduce bundle size');
       score -= 10;
     }
@@ -159,7 +178,7 @@ export class PerformanceTester {
       passed,
       issues,
       recommendations,
-      score
+      score,
     };
   }
 
@@ -176,11 +195,11 @@ export class PerformanceTester {
         parseTime: 10, // 10ms
         memoryUsage: 5, // 5MB
         fps: 30,
-        loadTime: 100 // 100ms
+        loadTime: 100, // 100ms
       },
       run: async () => {
         return this.runSmallSongTest();
-      }
+      },
     });
 
     // Large song rendering test
@@ -192,11 +211,11 @@ export class PerformanceTester {
         parseTime: 50, // 50ms
         memoryUsage: 20, // 20MB
         fps: 20,
-        loadTime: 500 // 500ms
+        loadTime: 500, // 500ms
       },
       run: async () => {
         return this.runLargeSongTest();
-      }
+      },
     });
 
     // Real-time input test
@@ -208,11 +227,11 @@ export class PerformanceTester {
         parseTime: 20, // 20ms
         memoryUsage: 10, // 10MB
         fps: 30,
-        loadTime: 200 // 200ms
+        loadTime: 200, // 200ms
       },
       run: async () => {
         return this.runRealTimeInputTest();
-      }
+      },
     });
 
     // Memory stress test
@@ -224,11 +243,11 @@ export class PerformanceTester {
         parseTime: 100, // 100ms
         memoryUsage: 50, // 50MB
         fps: 15,
-        loadTime: 1000 // 1000ms
+        loadTime: 1000, // 1000ms
       },
       run: async () => {
         return this.runMemoryStressTest();
-      }
+      },
     });
   }
 
@@ -240,8 +259,8 @@ export class PerformanceTester {
       title: 'Small Test Song',
       lines: [
         ['F', 'G', 'A', 'Bb'],
-        ['C', 'D', 'E', 'F']
-      ]
+        ['C', 'D', 'E', 'F'],
+      ],
     };
 
     return this.measureSongPerformance(testSong);
@@ -254,7 +273,7 @@ export class PerformanceTester {
     // Generate a large song
     const notes = ['F', 'G', 'A', 'Bb', 'C', 'D', 'E'];
     const lines: string[][] = [];
-    
+
     for (let i = 0; i < 20; i++) {
       const line: string[] = [];
       for (let j = 0; j < 10; j++) {
@@ -265,7 +284,7 @@ export class PerformanceTester {
 
     const testSong = {
       title: 'Large Test Song',
-      lines
+      lines,
     };
 
     return this.measureSongPerformance(testSong);
@@ -284,26 +303,26 @@ export class PerformanceTester {
     // Simulate real-time input
     const interval = setInterval(() => {
       const parseStart = performance.now();
-      
+
       // Simulate parsing
       const testInput = 'F G A Bb C D E';
       const song = this.simulateParsing(testInput);
-      
+
       const parseEnd = performance.now();
       const renderStart = performance.now();
-      
+
       // Simulate rendering
       this.simulateRendering(song);
-      
+
       const renderEnd = performance.now();
-      
+
       totalParseTime += parseEnd - parseStart;
       totalRenderTime += renderEnd - renderStart;
       frameCount++;
     }, 16); // ~60 FPS
 
     // Wait for test duration
-    await new Promise(resolve => setTimeout(resolve, testDuration));
+    await new Promise((resolve) => setTimeout(resolve, testDuration));
     clearInterval(interval);
 
     const endTime = performance.now();
@@ -316,7 +335,7 @@ export class PerformanceTester {
       memoryUsage: this.getCurrentMemoryUsage(),
       fps,
       loadTime: totalTime,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 
@@ -332,7 +351,9 @@ export class PerformanceTester {
     for (let i = 0; i < 10; i++) {
       const lines: string[][] = [];
       for (let j = 0; j < 50; j++) {
-        const line = Array(20).fill(0).map(() => 'F');
+        const line = Array(20)
+          .fill(0)
+          .map(() => 'F');
         lines.push(line);
       }
       largeSongs.push({ title: `Stress Song ${i}`, lines });
@@ -357,7 +378,7 @@ export class PerformanceTester {
       memoryUsage: endMemory - startMemory,
       fps: 0, // Not applicable for this test
       loadTime: endTime - startTime,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 
@@ -366,17 +387,17 @@ export class PerformanceTester {
    */
   private async measureSongPerformance(song: any): Promise<PerformanceMetrics> {
     const startMemory = this.getCurrentMemoryUsage();
-    
+
     // Measure parsing time
     const parseStart = performance.now();
     const parsedSong = this.simulateParsing(JSON.stringify(song));
     const parseEnd = performance.now();
-    
+
     // Measure rendering time
     const renderStart = performance.now();
     await this.simulateRendering(parsedSong);
     const renderEnd = performance.now();
-    
+
     const endMemory = this.getCurrentMemoryUsage();
 
     return {
@@ -385,7 +406,7 @@ export class PerformanceTester {
       memoryUsage: endMemory - startMemory,
       fps: 60, // Assume 60 FPS for single render
       loadTime: 0, // Will be set by caller
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 
@@ -394,7 +415,9 @@ export class PerformanceTester {
    */
   private simulateParsing(input: string): any {
     // Simulate parsing work
-    const lines = input.split('\n').map(line => line.split(' ').filter(note => note.trim()));
+    const lines = input
+      .split('\n')
+      .map((line) => line.split(' ').filter((note) => note.trim()));
     return { title: 'Test Song', lines };
   }
 
@@ -407,22 +430,28 @@ export class PerformanceTester {
     canvas.width = 800;
     canvas.height = 600;
     const ctx = canvas.getContext('2d');
-    
+
     if (ctx) {
       // Simulate drawing operations
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+
       // Simulate drawing patterns for each note
       song.lines.forEach((line: string[], lineIndex: number) => {
         line.forEach((_note: string, noteIndex: number) => {
           const x = noteIndex * 50;
           const y = lineIndex * 50;
-          
+
           // Simulate drawing circles (holes)
           for (let i = 0; i < 4; i++) {
             ctx.beginPath();
-            ctx.arc(x + (i % 2) * 20, y + Math.floor(i / 2) * 20, 10, 0, 2 * Math.PI);
+            ctx.arc(
+              x + (i % 2) * 20,
+              y + Math.floor(i / 2) * 20,
+              10,
+              0,
+              2 * Math.PI
+            );
             ctx.fill();
           }
         });
@@ -430,7 +459,7 @@ export class PerformanceTester {
     }
 
     // Simulate async rendering delay
-    await new Promise(resolve => setTimeout(resolve, 1));
+    await new Promise((resolve) => setTimeout(resolve, 1));
   }
 
   /**
@@ -452,12 +481,13 @@ export class PerformanceTester {
     }
 
     let report = '# Performance Test Report\n\n';
-    
+
     // Overall summary
     const totalTests = this.results.length;
-    const passedTests = this.results.filter(r => r.passed).length;
-    const averageScore = this.results.reduce((sum, r) => sum + r.score, 0) / totalTests;
-    
+    const passedTests = this.results.filter((r) => r.passed).length;
+    const averageScore =
+      this.results.reduce((sum, r) => sum + r.score, 0) / totalTests;
+
     report += `## Summary\n`;
     report += `- Total Tests: ${totalTests}\n`;
     report += `- Passed: ${passedTests}\n`;
@@ -466,8 +496,8 @@ export class PerformanceTester {
 
     // Individual test results
     report += `## Test Results\n\n`;
-    
-    this.results.forEach(result => {
+
+    this.results.forEach((result) => {
       report += `### ${result.testName}\n`;
       report += `- **Status**: ${result.passed ? '✅ PASSED' : '❌ FAILED'}\n`;
       report += `- **Score**: ${result.score}/100\n`;
@@ -476,21 +506,21 @@ export class PerformanceTester {
       report += `- **Memory Usage**: ${result.metrics.memoryUsage.toFixed(1)}MB\n`;
       report += `- **FPS**: ${result.metrics.fps.toFixed(1)}\n`;
       report += `- **Load Time**: ${result.metrics.loadTime.toFixed(1)}ms\n`;
-      
+
       if (result.issues.length > 0) {
         report += `\n**Issues:**\n`;
-        result.issues.forEach(issue => {
+        result.issues.forEach((issue) => {
           report += `- ${issue}\n`;
         });
       }
-      
+
       if (result.recommendations.length > 0) {
         report += `\n**Recommendations:**\n`;
-        result.recommendations.forEach(rec => {
+        result.recommendations.forEach((rec) => {
           report += `- ${rec}\n`;
         });
       }
-      
+
       report += '\n';
     });
 
@@ -531,7 +561,9 @@ export const PerformanceUtils = {
   /**
    * Measure execution time of a function
    */
-  measureTime: async <T>(fn: () => Promise<T> | T): Promise<{ result: T; time: number }> => {
+  measureTime: async <T>(
+    fn: () => Promise<T> | T
+  ): Promise<{ result: T; time: number }> => {
     const start = performance.now();
     const result = await fn();
     const end = performance.now();
@@ -541,7 +573,11 @@ export const PerformanceUtils = {
   /**
    * Create a performance benchmark
    */
-  benchmark: async (name: string, fn: () => Promise<void> | void, iterations: number = 100): Promise<{
+  benchmark: async (
+    name: string,
+    fn: () => Promise<void> | void,
+    iterations: number = 100
+  ): Promise<{
     name: string;
     iterations: number;
     totalTime: number;
@@ -550,61 +586,64 @@ export const PerformanceUtils = {
     maxTime: number;
   }> => {
     const times: number[] = [];
-    
+
     for (let i = 0; i < iterations; i++) {
       const { time } = await PerformanceUtils.measureTime(fn);
       times.push(time);
     }
-    
+
     const totalTime = times.reduce((sum, time) => sum + time, 0);
     const averageTime = totalTime / iterations;
     const minTime = Math.min(...times);
     const maxTime = Math.max(...times);
-    
+
     return {
       name,
       iterations,
       totalTime,
       averageTime,
       minTime,
-      maxTime
+      maxTime,
     };
   },
 
   /**
    * Monitor FPS over a period
    */
-  monitorFPS: (duration: number = 5000): Promise<{ averageFPS: number; minFPS: number; maxFPS: number }> => {
-    return new Promise(resolve => {
+  monitorFPS: (
+    duration: number = 5000
+  ): Promise<{ averageFPS: number; minFPS: number; maxFPS: number }> => {
+    return new Promise((resolve) => {
       const fps: number[] = [];
       let lastTime = performance.now();
       let frameCount = 0;
-      
+
       const measureFrame = () => {
         const currentTime = performance.now();
         const deltaTime = currentTime - lastTime;
-        
-        if (deltaTime >= 1000) { // Every second
+
+        if (deltaTime >= 1000) {
+          // Every second
           const currentFPS = (frameCount / deltaTime) * 1000;
           fps.push(currentFPS);
           frameCount = 0;
           lastTime = currentTime;
         }
-        
+
         frameCount++;
-        
+
         if (currentTime - lastTime < duration) {
           requestAnimationFrame(measureFrame);
         } else {
           const averageFPS = fps.reduce((sum, f) => sum + f, 0) / fps.length;
           const minFPS = Math.min(...fps);
           const maxFPS = Math.max(...fps);
-          
+
           resolve({ averageFPS, minFPS, maxFPS });
         }
       };
-      
+
       requestAnimationFrame(measureFrame);
     });
-  }
+  },
 };

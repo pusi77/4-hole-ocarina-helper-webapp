@@ -23,7 +23,7 @@ const mockContext = {
   font: '',
   textAlign: '',
   textBaseline: '',
-  lineWidth: 0
+  lineWidth: 0,
 } as unknown as CanvasRenderingContext2D;
 
 const mockCanvas = {
@@ -31,7 +31,7 @@ const mockCanvas = {
   height: 600,
   style: { width: '800px', height: '600px' },
   getContext: vi.fn(() => mockContext),
-  toDataURL: vi.fn(() => 'data:image/png;base64,test')
+  toDataURL: vi.fn(() => 'data:image/png;base64,test'),
 } as unknown as HTMLCanvasElement;
 
 describe('ChartRenderer', () => {
@@ -41,17 +41,17 @@ describe('ChartRenderer', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     testSong = {
       title: 'Test Song',
       lines: [['F', 'G', 'A']],
       metadata: {
         noteCount: 3,
         originalInput: 'Test Song\nF G A',
-        parseTimestamp: new Date()
-      }
+        parseTimestamp: new Date(),
+      },
     };
-    
+
     testConfig = {
       canvasWidth: 800,
       canvasHeight: 600,
@@ -61,10 +61,10 @@ describe('ChartRenderer', () => {
         background: '#ffffff',
         holeFilled: '#000000',
         holeEmpty: '#ffffff',
-        text: '#000000'
-      }
+        text: '#000000',
+      },
     };
-    
+
     renderer = new ChartRenderer(mockCanvas, testConfig);
   });
 
@@ -74,7 +74,7 @@ describe('ChartRenderer', () => {
 
   it('should calculate layout', () => {
     const layout = renderer.calculateLayout(testSong);
-    
+
     expect(layout).toHaveProperty('totalWidth');
     expect(layout).toHaveProperty('totalHeight');
     expect(layout.totalWidth).toBeGreaterThan(0);
@@ -83,13 +83,46 @@ describe('ChartRenderer', () => {
 
   it('should render to canvas', () => {
     const mockPatterns = new Map([
-      ['F', { note: 'F', holes: [true, true, true, true] as [boolean, boolean, boolean, boolean] }],
-      ['G', { note: 'G', holes: [true, false, true, true] as [boolean, boolean, boolean, boolean] }],
-      ['A', { note: 'A', holes: [true, true, true, false] as [boolean, boolean, boolean, boolean] }]
+      [
+        'F',
+        {
+          note: 'F',
+          holes: [true, true, true, true] as [
+            boolean,
+            boolean,
+            boolean,
+            boolean,
+          ],
+        },
+      ],
+      [
+        'G',
+        {
+          note: 'G',
+          holes: [true, false, true, true] as [
+            boolean,
+            boolean,
+            boolean,
+            boolean,
+          ],
+        },
+      ],
+      [
+        'A',
+        {
+          note: 'A',
+          holes: [true, true, true, false] as [
+            boolean,
+            boolean,
+            boolean,
+            boolean,
+          ],
+        },
+      ],
     ]);
-    
+
     expect(() => renderer.renderChart(testSong, mockPatterns)).not.toThrow();
-    
+
     // Just verify the method completed without error
     expect(renderer).toBeInstanceOf(ChartRenderer);
   });
@@ -101,7 +134,7 @@ describe('ChartRenderer', () => {
 
   it('should get data URL', () => {
     const dataUrl = renderer.getDataURL();
-    
+
     expect(typeof dataUrl).toBe('string');
     expect(dataUrl).toContain('data:image/png;base64,');
   });
@@ -110,13 +143,13 @@ describe('ChartRenderer', () => {
     const emptySong: Song = {
       title: 'Empty Song',
       lines: [],
-      metadata: { 
-        noteCount: 0, 
+      metadata: {
+        noteCount: 0,
         originalInput: 'Empty Song',
-        parseTimestamp: new Date()
-      }
+        parseTimestamp: new Date(),
+      },
     };
-    
+
     const emptyPatterns = new Map();
     expect(() => renderer.renderChart(emptySong, emptyPatterns)).not.toThrow();
   });

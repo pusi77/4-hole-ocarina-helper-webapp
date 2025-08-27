@@ -13,7 +13,7 @@ export enum NotificationType {
   ERROR = 'error',
   WARNING = 'warning',
   SUCCESS = 'success',
-  INFO = 'info'
+  INFO = 'info',
 }
 
 /**
@@ -59,7 +59,10 @@ export interface NotificationEvents {
   onNotificationAdded?: (notification: Notification) => void;
   onNotificationRemoved?: (notificationId: string) => void;
   onNotificationClicked?: (notification: Notification) => void;
-  onActionClicked?: (notification: Notification, action: NotificationAction) => void;
+  onActionClicked?: (
+    notification: Notification,
+    action: NotificationAction
+  ) => void;
 }
 
 /**
@@ -72,7 +75,10 @@ export class NotificationSystem {
   private events: NotificationEvents;
   private hideTimeouts: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
-  constructor(events: NotificationEvents = {}, config?: Partial<NotificationConfig>) {
+  constructor(
+    events: NotificationEvents = {},
+    config?: Partial<NotificationConfig>
+  ) {
     this.events = events;
     this.config = {
       autoHide: true,
@@ -81,7 +87,7 @@ export class NotificationSystem {
       position: 'top',
       showIcons: true,
       allowDismiss: true,
-      ...config
+      ...config,
     };
   }
 
@@ -99,15 +105,15 @@ export class NotificationSystem {
   showError(error: ValidationError): string {
     const title = this.getErrorTitle(error.type);
     const message = this.formatErrorMessage(error);
-    
+
     const actions: NotificationAction[] = [];
-    
+
     // Add suggestion actions if available
     if (error.suggestions && error.suggestions.length > 0) {
       actions.push({
         label: 'Show Help',
         action: () => this.showErrorHelp(error),
-        style: 'secondary'
+        style: 'secondary',
       });
     }
 
@@ -118,7 +124,7 @@ export class NotificationSystem {
       autoHide: false, // Errors should be manually dismissed
       hideDelay: 0,
       actions,
-      metadata: { error }
+      metadata: { error },
     });
   }
 
@@ -128,42 +134,50 @@ export class NotificationSystem {
   showWarning(warning: ValidationWarning): string {
     const title = this.getWarningTitle(warning.type);
     const message = this.formatWarningMessage(warning);
-    
+
     return this.show({
       type: NotificationType.WARNING,
       title,
       message,
       autoHide: true,
       hideDelay: 4000,
-      metadata: { warning }
+      metadata: { warning },
     });
   }
 
   /**
    * Show a success notification
    */
-  showSuccess(title: string, message: string, options?: Partial<Notification>): string {
+  showSuccess(
+    title: string,
+    message: string,
+    options?: Partial<Notification>
+  ): string {
     return this.show({
       type: NotificationType.SUCCESS,
       title,
       message,
       autoHide: true,
       hideDelay: 3000,
-      ...options
+      ...options,
     });
   }
 
   /**
    * Show an info notification
    */
-  showInfo(title: string, message: string, options?: Partial<Notification>): string {
+  showInfo(
+    title: string,
+    message: string,
+    options?: Partial<Notification>
+  ): string {
     return this.show({
       type: NotificationType.INFO,
       title,
       message,
       autoHide: true,
       hideDelay: 4000,
-      ...options
+      ...options,
     });
   }
 
@@ -185,13 +199,14 @@ export class NotificationSystem {
       timestamp: new Date(),
       autoHide: this.config.autoHide,
       hideDelay: this.config.hideDelay,
-      ...notification
+      ...notification,
     };
 
     // Enforce max notifications limit before adding new one
     while (this.notifications.size >= this.config.maxNotifications) {
-      const oldest = Array.from(this.notifications.values())
-        .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())[0];
+      const oldest = Array.from(this.notifications.values()).sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+      )[0];
       if (oldest) {
         this.hide(oldest.id);
       } else {
@@ -237,7 +252,9 @@ export class NotificationSystem {
     }
 
     // Remove from DOM
-    const element = this.container?.querySelector(`[data-notification-id="${notificationId}"]`);
+    const element = this.container?.querySelector(
+      `[data-notification-id="${notificationId}"]`
+    );
     if (element) {
       element.classList.add('notification-hiding');
       setTimeout(() => {
@@ -259,7 +276,7 @@ export class NotificationSystem {
    */
   hideAll(): void {
     const notificationIds = Array.from(this.notifications.keys());
-    notificationIds.forEach(id => this.hide(id));
+    notificationIds.forEach((id) => this.hide(id));
   }
 
   /**
@@ -267,10 +284,10 @@ export class NotificationSystem {
    */
   hideByType(type: NotificationType): void {
     const notificationsToHide = Array.from(this.notifications.values())
-      .filter(n => n.type === type)
-      .map(n => n.id);
-    
-    notificationsToHide.forEach(id => this.hide(id));
+      .filter((n) => n.type === type)
+      .map((n) => n.id);
+
+    notificationsToHide.forEach((id) => this.hide(id));
   }
 
   /**
@@ -284,7 +301,7 @@ export class NotificationSystem {
    * Get notifications by type
    */
   getNotificationsByType(type: NotificationType): Notification[] {
-    return this.getNotifications().filter(n => n.type === type);
+    return this.getNotifications().filter((n) => n.type === type);
   }
 
   /**
@@ -306,7 +323,7 @@ export class NotificationSystem {
    */
   updateConfig(config: Partial<NotificationConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     // Update container if position changed
     if (this.container && config.position) {
       this.setupContainer();
@@ -335,8 +352,10 @@ export class NotificationSystem {
     element.setAttribute('role', 'alert');
     element.setAttribute('aria-live', 'assertive');
 
-    const icon = this.config.showIcons ? this.getNotificationIcon(notification.type) : '';
-    
+    const icon = this.config.showIcons
+      ? this.getNotificationIcon(notification.type)
+      : '';
+
     element.innerHTML = `
       <div class="notification-content">
         ${icon ? `<div class="notification-icon">${icon}</div>` : ''}
@@ -359,9 +378,12 @@ export class NotificationSystem {
    * Create HTML for notification actions
    */
   private createActionsHtml(actions: NotificationAction[]): string {
-    const actionsHtml = actions.map(action => 
-      `<button class="notification-action notification-action-${action.style || 'secondary'}" data-action="${this.escapeHtml(action.label)}">${this.escapeHtml(action.label)}</button>`
-    ).join('');
+    const actionsHtml = actions
+      .map(
+        (action) =>
+          `<button class="notification-action notification-action-${action.style || 'secondary'}" data-action="${this.escapeHtml(action.label)}">${this.escapeHtml(action.label)}</button>`
+      )
+      .join('');
 
     return `<div class="notification-actions">${actionsHtml}</div>`;
   }
@@ -369,7 +391,10 @@ export class NotificationSystem {
   /**
    * Set up event listeners for notification element
    */
-  private setupNotificationEvents(element: HTMLElement, notification: Notification): void {
+  private setupNotificationEvents(
+    element: HTMLElement,
+    notification: Notification
+  ): void {
     // Dismiss button
     const dismissBtn = element.querySelector('.notification-dismiss');
     if (dismissBtn) {
@@ -395,10 +420,14 @@ export class NotificationSystem {
     // Click on notification
     element.addEventListener('click', (e) => {
       // Don't trigger if clicking on dismiss or action buttons
-      if ((e.target as HTMLElement).closest('.notification-dismiss, .notification-action')) {
+      if (
+        (e.target as HTMLElement).closest(
+          '.notification-dismiss, .notification-action'
+        )
+      ) {
         return;
       }
-      
+
       if (this.events.onNotificationClicked) {
         this.events.onNotificationClicked(notification);
       }
@@ -448,7 +477,7 @@ export class NotificationSystem {
    */
   private formatErrorMessage(error: ValidationError): string {
     let message = error.message;
-    
+
     if (error.line !== undefined) {
       message += ` (Line ${error.line}`;
       if (error.position !== undefined) {
@@ -465,7 +494,7 @@ export class NotificationSystem {
    */
   private formatWarningMessage(warning: ValidationWarning): string {
     let message = warning.message;
-    
+
     if (warning.line !== undefined) {
       message += ` (Line ${warning.line}`;
       if (warning.position !== undefined) {
@@ -484,19 +513,17 @@ export class NotificationSystem {
     if (!error.suggestions || error.suggestions.length === 0) return;
 
     const helpMessage = error.suggestions.join('\n• ');
-    
-    this.showInfo(
-      'How to Fix This Error',
-      `• ${helpMessage}`,
-      {
-        autoHide: false,
-        actions: [{
+
+    this.showInfo('How to Fix This Error', `• ${helpMessage}`, {
+      autoHide: false,
+      actions: [
+        {
           label: 'Got It',
           action: () => {}, // Will auto-dismiss
-          style: 'primary'
-        }]
-      }
-    );
+          style: 'primary',
+        },
+      ],
+    });
   }
 
   /**
@@ -516,8 +543,6 @@ export class NotificationSystem {
         return '';
     }
   }
-
-
 
   /**
    * Generate unique notification ID
@@ -540,7 +565,7 @@ export class NotificationSystem {
    */
   destroy(): void {
     // Clear all timeouts
-    this.hideTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.hideTimeouts.forEach((timeout) => clearTimeout(timeout));
     this.hideTimeouts.clear();
 
     // Clear all notifications

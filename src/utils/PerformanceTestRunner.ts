@@ -3,8 +3,14 @@
  * Runs performance tests and provides real-time monitoring
  */
 
-import { globalPerformanceTester, type PerformanceReport } from './PerformanceTester.js';
-import { globalMemoryMonitor, type MemoryUsage as _MemoryUsage } from './MemoryMonitor.js';
+import {
+  globalPerformanceTester,
+  type PerformanceReport,
+} from './PerformanceTester.js';
+import {
+  globalMemoryMonitor,
+  type MemoryUsage as _MemoryUsage,
+} from './MemoryMonitor.js';
 import { LoadingUtils } from '../ui/LoadingManager.js';
 
 export interface PerformanceTestConfig {
@@ -35,9 +41,9 @@ export class PerformanceTestRunner {
       showPerformanceDisplay: false,
       memoryThresholds: {
         warning: 70,
-        critical: 85
+        critical: 85,
       },
-      ...config
+      ...config,
     };
   }
 
@@ -70,24 +76,24 @@ export class PerformanceTestRunner {
    */
   private async runStartupTests(): Promise<void> {
     LoadingUtils.showRenderingLoading();
-    
+
     try {
       console.log('Running startup performance tests...');
-      
+
       // Run basic performance tests
       const results = await globalPerformanceTester.runAllTests();
       this.testResults = results;
-      
+
       // Log results
       const report = globalPerformanceTester.generateReport();
       console.log('Startup Performance Report:', report);
-      
+
       // Check for critical issues
-      const criticalIssues = results.filter(r => !r.passed && r.score < 50);
+      const criticalIssues = results.filter((r) => !r.passed && r.score < 50);
       if (criticalIssues.length > 0) {
         console.warn('Critical performance issues detected:', criticalIssues);
       }
-      
+
       LoadingUtils.hide();
     } catch (error) {
       console.error('Startup performance tests failed:', error);
@@ -231,7 +237,8 @@ export class PerformanceTestRunner {
     const memoryStats = globalMemoryMonitor.getMemoryStats();
     const memoryUsage = memoryStats.current;
 
-    let content = '<div style="margin-bottom: 8px; font-weight: bold;">Performance Monitor</div>';
+    let content =
+      '<div style="margin-bottom: 8px; font-weight: bold;">Performance Monitor</div>';
 
     if (memoryUsage) {
       const usedMB = (memoryUsage.usedJSHeapSize / (1024 * 1024)).toFixed(1);
@@ -249,9 +256,15 @@ export class PerformanceTestRunner {
       `;
 
       // Update display color based on memory usage
-      if (memoryUsage.usedPercentage >= (this.config.memoryThresholds?.critical || 85)) {
+      if (
+        memoryUsage.usedPercentage >=
+        (this.config.memoryThresholds?.critical || 85)
+      ) {
         this.performanceDisplay.style.background = 'rgba(220, 53, 69, 0.95)';
-      } else if (memoryUsage.usedPercentage >= (this.config.memoryThresholds?.warning || 70)) {
+      } else if (
+        memoryUsage.usedPercentage >=
+        (this.config.memoryThresholds?.warning || 70)
+      ) {
         this.performanceDisplay.style.background = 'rgba(255, 193, 7, 0.95)';
         this.performanceDisplay.style.color = 'black';
       } else {
@@ -264,9 +277,10 @@ export class PerformanceTestRunner {
 
     // Add test results summary
     if (this.testResults.length > 0) {
-      const passedTests = this.testResults.filter(r => r.passed).length;
+      const passedTests = this.testResults.filter((r) => r.passed).length;
       const totalTests = this.testResults.length;
-      const averageScore = this.testResults.reduce((sum, r) => sum + r.score, 0) / totalTests;
+      const averageScore =
+        this.testResults.reduce((sum, r) => sum + r.score, 0) / totalTests;
 
       content += `
         <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.3);">
@@ -278,7 +292,10 @@ export class PerformanceTestRunner {
 
     // Add performance recommendations
     const recommendations = globalMemoryMonitor.getRecommendations();
-    if (recommendations.length > 0 && recommendations[0] !== 'Memory usage is within normal limits.') {
+    if (
+      recommendations.length > 0 &&
+      recommendations[0] !== 'Memory usage is within normal limits.'
+    ) {
       content += `
         <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 10px;">
           <div style="font-weight: bold;">Recommendations:</div>
@@ -352,7 +369,7 @@ export class PerformanceTestRunner {
   }> {
     const totalNotes = song.lines.reduce((sum, line) => sum + line.length, 0);
     const memoryStats = globalMemoryMonitor.getMemoryStats();
-    
+
     let canProcess = true;
     const recommendations: string[] = [];
     let estimatedTime = totalNotes * 2; // 2ms per note estimate
@@ -360,31 +377,39 @@ export class PerformanceTestRunner {
     // Check memory conditions
     if (memoryStats.current && memoryStats.current.usedPercentage > 80) {
       canProcess = false;
-      recommendations.push('High memory usage detected. Clear cache before processing large songs.');
+      recommendations.push(
+        'High memory usage detected. Clear cache before processing large songs.'
+      );
       estimatedTime *= 2;
     }
 
     // Check song size
     if (totalNotes > 500) {
-      recommendations.push('Large song detected. Processing may take longer than usual.');
+      recommendations.push(
+        'Large song detected. Processing may take longer than usual.'
+      );
       estimatedTime *= 1.5;
     }
 
     if (totalNotes > 1000) {
       canProcess = false;
-      recommendations.push('Song is very large. Consider breaking it into smaller sections.');
+      recommendations.push(
+        'Song is very large. Consider breaking it into smaller sections.'
+      );
       estimatedTime *= 3;
     }
 
     // Check performance trend
     if (memoryStats.trend === 'increasing') {
-      recommendations.push('Memory usage is increasing. Monitor performance during processing.');
+      recommendations.push(
+        'Memory usage is increasing. Monitor performance during processing.'
+      );
     }
 
     return {
       canProcess,
       recommendations,
-      estimatedTime
+      estimatedTime,
     };
   }
 
@@ -398,12 +423,12 @@ export class PerformanceTestRunner {
     recommendations: string[];
   } {
     const memoryStats = globalMemoryMonitor.getMemoryStats();
-    
+
     return {
       isMonitoring: this.isMonitoring,
       memoryUsage: memoryStats.current?.usedPercentage || 0,
       testResults: [...this.testResults],
-      recommendations: globalMemoryMonitor.getRecommendations()
+      recommendations: globalMemoryMonitor.getRecommendations(),
     };
   }
 
@@ -452,12 +477,12 @@ export const PerformanceTestUtils = {
    */
   quickCheck: async (): Promise<boolean> => {
     const memoryStats = globalMemoryMonitor.getMemoryStats();
-    
+
     // Check if memory usage is acceptable
     if (memoryStats.current && memoryStats.current.usedPercentage > 85) {
       return false;
     }
-    
+
     // Run a quick render test
     try {
       const result = await globalPerformanceTester.runTest('small-song-render');
@@ -474,7 +499,7 @@ export const PerformanceTestUtils = {
     globalPerformanceTestRunner.updateConfig({
       showPerformanceDisplay: true,
       enableRealTimeMonitoring: true,
-      runOnLargeSongs: true
+      runOnLargeSongs: true,
     });
   },
 
@@ -485,7 +510,7 @@ export const PerformanceTestUtils = {
     globalPerformanceTestRunner.updateConfig({
       showPerformanceDisplay: false,
       enableRealTimeMonitoring: false,
-      runOnLargeSongs: false
+      runOnLargeSongs: false,
     });
-  }
+  },
 };

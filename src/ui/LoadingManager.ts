@@ -39,8 +39,8 @@ export class LoadingManager {
    * Start a loading operation
    */
   startLoading(
-    operation: string, 
-    message: string = 'Loading...', 
+    operation: string,
+    message: string = 'Loading...',
     estimatedDuration?: number
   ): void {
     // End any existing loading operation
@@ -54,7 +54,7 @@ export class LoadingManager {
       progress: 0,
       message,
       startTime: performance.now(),
-      estimatedDuration
+      estimatedDuration,
     };
 
     this.updateUI();
@@ -266,14 +266,19 @@ export class LoadingManager {
     }
 
     // Update progress text
-    const progressText = this.loadingElement.querySelector('.loading-progress-text');
+    const progressText = this.loadingElement.querySelector(
+      '.loading-progress-text'
+    );
     if (progressText) {
       const elapsed = performance.now() - this.currentState.startTime;
       const elapsedSeconds = Math.round(elapsed / 1000);
-      
+
       let progressInfo = `${Math.round(this.currentState.progress)}%`;
-      
-      if (this.currentState.estimatedDuration && this.currentState.progress > 0) {
+
+      if (
+        this.currentState.estimatedDuration &&
+        this.currentState.progress > 0
+      ) {
         const estimatedTotal = (elapsed / this.currentState.progress) * 100;
         const remaining = Math.max(0, estimatedTotal - elapsed);
         const remainingSeconds = Math.round(remaining / 1000);
@@ -281,7 +286,7 @@ export class LoadingManager {
       } else if (elapsedSeconds > 0) {
         progressInfo += ` • ${elapsedSeconds}s elapsed`;
       }
-      
+
       progressText.textContent = progressInfo;
     }
   }
@@ -305,8 +310,11 @@ export class LoadingManager {
       if (!this.currentState) return;
 
       const elapsed = performance.now() - this.currentState.startTime;
-      const estimatedProgress = Math.min(95, (elapsed / this.currentState.estimatedDuration!) * 100);
-      
+      const estimatedProgress = Math.min(
+        95,
+        (elapsed / this.currentState.estimatedDuration!) * 100
+      );
+
       // Only update if we don't have explicit progress updates
       if (this.currentState.progress < estimatedProgress) {
         this.updateProgress(estimatedProgress);
@@ -334,7 +342,7 @@ export class LoadingManager {
     estimatedDuration?: number
   ): Promise<T> {
     this.startLoading(operationName, message, estimatedDuration);
-    
+
     try {
       const result = await operation();
       this.endLoading();
@@ -360,7 +368,7 @@ export class LoadingManager {
 
       const elapsed = performance.now() - startTime;
       const progress = Math.min(95, (elapsed / duration) * 100);
-      
+
       this.updateProgress(progress);
 
       if (progress >= 95) {
@@ -374,11 +382,11 @@ export class LoadingManager {
    */
   destroy(): void {
     this.stopProgressTracking();
-    
+
     if (this.loadingElement && this.loadingElement.parentNode) {
       this.loadingElement.parentNode.removeChild(this.loadingElement);
     }
-    
+
     this.currentState = null;
     this.loadingElement = null;
     this.progressBar = null;
@@ -399,7 +407,11 @@ export const LoadingUtils = {
    * Show loading for file operations
    */
   showFileLoading: (filename: string) => {
-    globalLoadingManager.startLoading('file-load', `Loading ${filename}...`, 1000);
+    globalLoadingManager.startLoading(
+      'file-load',
+      `Loading ${filename}...`,
+      1000
+    );
   },
 
   /**
@@ -435,5 +447,5 @@ export const LoadingUtils = {
    */
   error: (error: Error) => {
     globalLoadingManager.handleError(error);
-  }
+  },
 };

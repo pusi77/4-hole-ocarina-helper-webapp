@@ -24,7 +24,7 @@ const DEFAULT_PREVIEW_CONFIG: PreviewConfig = {
   autoUpdate: true,
   showEmptyState: true,
   emptyStateMessage: 'Enter song notation to see the fingering chart preview',
-  errorStateMessage: 'Fix the errors above to see the chart preview'
+  errorStateMessage: 'Fix the errors above to see the chart preview',
 };
 
 /**
@@ -39,8 +39,8 @@ const DEFAULT_CHART_CONFIG: ChartConfig = {
     background: '#ffffff',
     holeFilled: '#333333',
     holeEmpty: '#ffffff',
-    text: '#333333'
-  }
+    text: '#333333',
+  },
 };
 
 /**
@@ -63,10 +63,10 @@ export class PreviewController {
     this.canvas = canvas;
     this.config = { ...DEFAULT_PREVIEW_CONFIG, ...config };
     this.chartConfig = { ...DEFAULT_CHART_CONFIG, ...chartConfig };
-    
+
     this.fingeringEngine = new FingeringEngine();
     this.renderer = new ChartRenderer(this.canvas, this.chartConfig);
-    
+
     this.initialize();
   }
 
@@ -90,7 +90,7 @@ export class PreviewController {
     this.canvas.style.display = 'block';
     this.canvas.style.maxWidth = '100%';
     this.canvas.style.height = 'auto';
-    
+
     // Ensure canvas has proper dimensions
     this.canvas.width = this.chartConfig.canvasWidth;
     this.canvas.height = this.chartConfig.canvasHeight;
@@ -102,7 +102,7 @@ export class PreviewController {
   private createEmptyStateElement(): void {
     this.emptyStateElement = document.createElement('div');
     this.emptyStateElement.className = 'preview-empty-state';
-    
+
     // Style the empty state
     this.emptyStateElement.style.position = 'absolute';
     this.emptyStateElement.style.top = '50%';
@@ -116,7 +116,7 @@ export class PreviewController {
     this.emptyStateElement.style.maxWidth = '300px';
     this.emptyStateElement.style.lineHeight = '1.5';
     this.emptyStateElement.style.pointerEvents = 'none';
-    
+
     // Position canvas container relatively if needed
     const canvasParent = this.canvas.parentElement;
     if (canvasParent) {
@@ -137,35 +137,37 @@ export class PreviewController {
 
     this.currentSong = song;
     this.hideEmptyState();
-    
+
     try {
       // Get fingering patterns for all notes in the song
       const fingeringPatterns = new Map<string, FingeringPattern>();
-      
+
       // Collect all unique notes from the song
       const allNotes = new Set<string>();
-      song.lines.forEach(line => {
-        line.forEach(note => allNotes.add(note));
+      song.lines.forEach((line) => {
+        line.forEach((note) => allNotes.add(note));
       });
-      
+
       // Get fingering patterns for each note
-      allNotes.forEach(note => {
+      allNotes.forEach((note) => {
         try {
           const pattern = this.fingeringEngine.getPattern(note);
           if (pattern) {
             fingeringPatterns.set(note, pattern);
           }
         } catch (error) {
-          console.warn(`Could not get fingering pattern for note: ${note}`, error);
+          console.warn(
+            `Could not get fingering pattern for note: ${note}`,
+            error
+          );
         }
       });
-      
+
       // Render the chart
       this.renderer.renderChart(song, fingeringPatterns);
-      
+
       // Show the canvas
       this.canvas.style.display = 'block';
-      
     } catch (error) {
       console.error('Error updating chart preview:', error);
       this.showErrorState();
@@ -192,7 +194,7 @@ export class PreviewController {
       `;
       this.emptyStateElement.style.display = 'block';
     }
-    
+
     // Clear canvas but keep it visible for layout
     this.renderer.clear();
   }
@@ -208,7 +210,7 @@ export class PreviewController {
       `;
       this.emptyStateElement.style.display = 'block';
     }
-    
+
     // Clear canvas
     this.renderer.clear();
   }
@@ -236,12 +238,12 @@ export class PreviewController {
     if (!this.currentSong) {
       throw new Error('No chart to export');
     }
-    
+
     // Check if renderer has content to export
     if (!this.renderer.hasContent()) {
       throw new Error('No chart content available to export');
     }
-    
+
     // Use the renderer's enhanced export functionality
     this.renderer.exportToPNG(this.currentSong.title, filename);
   }
@@ -253,7 +255,7 @@ export class PreviewController {
     if (!this.currentSong || !this.renderer.hasContent()) {
       throw new Error('No chart content available to export');
     }
-    
+
     return this.renderer.getHighQualityDataURL();
   }
 
@@ -264,7 +266,7 @@ export class PreviewController {
     if (!this.currentSong || !this.renderer.hasContent()) {
       throw new Error('No chart content available to export');
     }
-    
+
     return this.renderer.exportAsBlob('image/png', 1.0);
   }
 
@@ -288,7 +290,7 @@ export class PreviewController {
   public updateChartConfig(newConfig: Partial<ChartConfig>): void {
     this.chartConfig = { ...this.chartConfig, ...newConfig };
     this.renderer.updateConfig(this.chartConfig);
-    
+
     // Re-render if we have a current song
     if (this.currentSong) {
       this.updatePreview(this.currentSong);
@@ -300,7 +302,7 @@ export class PreviewController {
    */
   public updateConfig(newConfig: Partial<PreviewConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    
+
     // Update empty state message if changed
     if (newConfig.emptyStateMessage && !this.currentSong) {
       this.showEmptyState();
@@ -314,16 +316,17 @@ export class PreviewController {
     // Get container dimensions
     const container = this.canvas.parentElement;
     if (!container) return;
-    
+
     const containerRect = container.getBoundingClientRect();
     const maxWidth = containerRect.width - 40; // Account for padding
-    
+
     // Update chart config if needed
     if (maxWidth > 0 && maxWidth !== this.chartConfig.canvasWidth) {
-      const aspectRatio = this.chartConfig.canvasHeight / this.chartConfig.canvasWidth;
+      const aspectRatio =
+        this.chartConfig.canvasHeight / this.chartConfig.canvasWidth;
       this.updateChartConfig({
         canvasWidth: maxWidth,
-        canvasHeight: maxWidth * aspectRatio
+        canvasHeight: maxWidth * aspectRatio,
       });
     }
   }
@@ -336,7 +339,7 @@ export class PreviewController {
     if (this.emptyStateElement && this.emptyStateElement.parentElement) {
       this.emptyStateElement.parentElement.removeChild(this.emptyStateElement);
     }
-    
+
     // Clear current song
     this.currentSong = null;
   }

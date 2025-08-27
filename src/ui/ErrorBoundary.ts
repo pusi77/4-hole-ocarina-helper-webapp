@@ -34,7 +34,7 @@ export class ErrorBoundary {
       fallbackUI: config.fallbackUI || this.createDefaultFallbackUI(),
       enableRecovery: config.enableRecovery ?? true,
       enableReporting: config.enableReporting ?? true,
-      maxRetries: config.maxRetries ?? 3
+      maxRetries: config.maxRetries ?? 3,
     };
 
     this.setupGlobalErrorHandlers();
@@ -50,38 +50,43 @@ export class ErrorBoundary {
         filename: event.filename,
         lineno: event.lineno,
         colno: event.colno,
-        type: 'javascript'
+        type: 'javascript',
       });
     });
 
     // Handle unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
-      const error = event.reason instanceof Error 
-        ? event.reason 
-        : new Error(String(event.reason));
-      
+      const error =
+        event.reason instanceof Error
+          ? event.reason
+          : new Error(String(event.reason));
+
       this.handleError(error, {
         type: 'promise',
-        promise: event.promise
+        promise: event.promise,
       });
-      
+
       // Prevent the default browser behavior (logging to console)
       event.preventDefault();
     });
 
     // Handle resource loading errors
-    window.addEventListener('error', (event) => {
-      if (event.target && event.target !== window) {
-        const target = event.target as HTMLElement;
-        const error = new Error(`Failed to load resource: ${target.tagName}`);
-        
-        this.handleError(error, {
-          type: 'resource',
-          element: target,
-          src: (target as any).src || (target as any).href
-        });
-      }
-    }, true);
+    window.addEventListener(
+      'error',
+      (event) => {
+        if (event.target && event.target !== window) {
+          const target = event.target as HTMLElement;
+          const error = new Error(`Failed to load resource: ${target.tagName}`);
+
+          this.handleError(error, {
+            type: 'resource',
+            element: target,
+            src: (target as any).src || (target as any).href,
+          });
+        }
+      },
+      true
+    );
   }
 
   /**
@@ -89,7 +94,7 @@ export class ErrorBoundary {
    */
   public handleError(error: Error, additionalInfo?: any): void {
     this.errorCount++;
-    
+
     const errorInfo: ErrorInfo = {
       error,
       timestamp: new Date(),
@@ -97,7 +102,7 @@ export class ErrorBoundary {
       url: window.location.href,
       stack: error.stack,
       componentStack: this.getComponentStack(),
-      retryCount: this.retryCount
+      retryCount: this.retryCount,
     };
 
     this.lastError = errorInfo;
@@ -109,7 +114,10 @@ export class ErrorBoundary {
     this.config.onError(error, { ...errorInfo, ...additionalInfo });
 
     // Attempt recovery if enabled
-    if (this.config.enableRecovery && this.retryCount < this.config.maxRetries) {
+    if (
+      this.config.enableRecovery &&
+      this.retryCount < this.config.maxRetries
+    ) {
       this.attemptRecovery(errorInfo);
     } else {
       this.showFallbackUI(errorInfo);
@@ -126,7 +134,7 @@ export class ErrorBoundary {
    */
   private async attemptRecovery(errorInfo: ErrorInfo): Promise<void> {
     if (this.isRecovering) return;
-    
+
     this.isRecovering = true;
     this.retryCount++;
 
@@ -135,7 +143,7 @@ export class ErrorBoundary {
       this.showRecoveryMessage();
 
       // Wait a moment before attempting recovery
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Attempt different recovery strategies based on error type
       const recovered = await this.tryRecoveryStrategies(errorInfo);
@@ -163,13 +171,13 @@ export class ErrorBoundary {
       () => this.clearLocalStorage(),
       () => this.resetApplicationState(),
       () => this.reloadComponents(),
-      () => this.softReload()
+      () => this.softReload(),
     ];
 
     for (const strategy of strategies) {
       try {
         await strategy();
-        
+
         // Test if the application is working
         if (await this.testApplicationHealth()) {
           return true;
@@ -199,9 +207,11 @@ export class ErrorBoundary {
    */
   private resetApplicationState(): void {
     // Dispatch custom reset event that components can listen to
-    window.dispatchEvent(new CustomEvent('app:reset', {
-      detail: { reason: 'error-recovery' }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('app:reset', {
+        detail: { reason: 'error-recovery' },
+      })
+    );
   }
 
   /**
@@ -212,9 +222,11 @@ export class ErrorBoundary {
     const appContainer = document.querySelector('#app');
     if (appContainer) {
       // Dispatch re-initialization event
-      window.dispatchEvent(new CustomEvent('app:reinitialize', {
-        detail: { container: appContainer }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('app:reinitialize', {
+          detail: { container: appContainer },
+        })
+      );
     }
   }
 
@@ -231,11 +243,7 @@ export class ErrorBoundary {
   private async testApplicationHealth(): Promise<boolean> {
     try {
       // Check if main DOM elements exist
-      const requiredElements = [
-        '#app',
-        '#song-input',
-        '#chart-canvas'
-      ];
+      const requiredElements = ['#app', '#song-input', '#chart-canvas'];
 
       for (const selector of requiredElements) {
         if (!document.querySelector(selector)) {
@@ -244,18 +252,22 @@ export class ErrorBoundary {
       }
 
       // Test basic functionality
-      const textArea = document.querySelector('#song-input') as HTMLTextAreaElement;
-      const canvas = document.querySelector('#chart-canvas') as HTMLCanvasElement;
-      
+      const textArea = document.querySelector(
+        '#song-input'
+      ) as HTMLTextAreaElement;
+      const canvas = document.querySelector(
+        '#chart-canvas'
+      ) as HTMLCanvasElement;
+
       if (!textArea || !canvas) {
         return false;
       }
 
       // Test if we can interact with elements
       textArea.focus();
-      
+
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -268,9 +280,10 @@ export class ErrorBoundary {
     if (!appContainer) return;
 
     // Create fallback UI
-    const fallbackElement = typeof this.config.fallbackUI === 'string'
-      ? this.createFallbackFromHTML(this.config.fallbackUI)
-      : this.config.fallbackUI;
+    const fallbackElement =
+      typeof this.config.fallbackUI === 'string'
+        ? this.createFallbackFromHTML(this.config.fallbackUI)
+        : this.config.fallbackUI;
 
     // Replace app content with fallback
     appContainer.innerHTML = '';
@@ -317,7 +330,7 @@ export class ErrorBoundary {
   private createFallbackFromHTML(html: string): HTMLElement {
     const container = document.createElement('div');
     container.innerHTML = html;
-    return container.firstElementChild as HTMLElement || container;
+    return (container.firstElementChild as HTMLElement) || container;
   }
 
   /**
@@ -332,7 +345,9 @@ export class ErrorBoundary {
       if (this.retryCount < this.config.maxRetries) {
         window.location.reload();
       } else {
-        this.showMessage('Maximum retry attempts reached. Please reload the page manually.');
+        this.showMessage(
+          'Maximum retry attempts reached. Please reload the page manually.'
+        );
       }
     });
 
@@ -352,14 +367,18 @@ export class ErrorBoundary {
     const errorInfoElement = container.querySelector('.error-info');
     if (errorInfoElement) {
       errorInfoElement.innerHTML = `
-        <pre><code>${JSON.stringify({
-          message: errorInfo.error.message,
-          stack: errorInfo.stack,
-          timestamp: errorInfo.timestamp.toISOString(),
-          url: errorInfo.url,
-          userAgent: errorInfo.userAgent,
-          retryCount: errorInfo.retryCount
-        }, null, 2)}</code></pre>
+        <pre><code>${JSON.stringify(
+          {
+            message: errorInfo.error.message,
+            stack: errorInfo.stack,
+            timestamp: errorInfo.timestamp.toISOString(),
+            url: errorInfo.url,
+            userAgent: errorInfo.userAgent,
+            retryCount: errorInfo.retryCount,
+          },
+          null,
+          2
+        )}</code></pre>
       `;
     }
   }
@@ -392,7 +411,10 @@ export class ErrorBoundary {
   /**
    * Show a message to the user
    */
-  private showMessage(text: string, type: 'info' | 'success' | 'error' = 'info'): void {
+  private showMessage(
+    text: string,
+    type: 'info' | 'success' | 'error' = 'info'
+  ): void {
     // Remove existing message
     this.hideRecoveryMessage();
 
@@ -427,7 +449,7 @@ export class ErrorBoundary {
       stack: this.lastError.stack,
       timestamp: this.lastError.timestamp.toISOString(),
       url: this.lastError.url,
-      userAgent: this.lastError.userAgent
+      userAgent: this.lastError.userAgent,
     };
 
     // Create a simple report dialog
@@ -458,7 +480,9 @@ export class ErrorBoundary {
       z-index: 10001;
     `;
 
-    const content = dialog.querySelector('.error-report-content') as HTMLElement;
+    const content = dialog.querySelector(
+      '.error-report-content'
+    ) as HTMLElement;
     content.style.cssText = `
       background: white;
       padding: 24px;
@@ -472,14 +496,18 @@ export class ErrorBoundary {
     document.body.appendChild(dialog);
 
     // Add event listeners
-    dialog.querySelector('#copy-report-btn')?.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(JSON.stringify(reportData, null, 2));
-        this.showMessage('Error report copied to clipboard', 'success');
-      } catch (error) {
-        console.error('Failed to copy to clipboard:', error);
-      }
-    });
+    dialog
+      .querySelector('#copy-report-btn')
+      ?.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(
+            JSON.stringify(reportData, null, 2)
+          );
+          this.showMessage('Error report copied to clipboard', 'success');
+        } catch (error) {
+          console.error('Failed to copy to clipboard:', error);
+        }
+      });
 
     dialog.querySelector('#close-report-btn')?.addEventListener('click', () => {
       dialog.remove();
@@ -510,12 +538,12 @@ export class ErrorBoundary {
   private reportError(errorInfo: ErrorInfo, additionalInfo?: any): void {
     // In a real application, you would send this to an error reporting service
     // like Sentry, LogRocket, or a custom endpoint
-    
+
     const reportData = {
       ...errorInfo,
       additionalInfo,
       sessionId: this.getSessionId(),
-      buildVersion: this.getBuildVersion()
+      buildVersion: this.getBuildVersion(),
     };
 
     // For now, just log to console in development
@@ -539,7 +567,8 @@ export class ErrorBoundary {
   private getSessionId(): string {
     let sessionId = sessionStorage.getItem('error-boundary-session-id');
     if (!sessionId) {
-      sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+      sessionId =
+        Date.now().toString(36) + Math.random().toString(36).substr(2);
       sessionStorage.setItem('error-boundary-session-id', sessionId);
     }
     return sessionId;
@@ -565,11 +594,15 @@ export class ErrorBoundary {
   /**
    * Get error statistics
    */
-  public getErrorStats(): { errorCount: number; lastError: ErrorInfo | null; retryCount: number } {
+  public getErrorStats(): {
+    errorCount: number;
+    lastError: ErrorInfo | null;
+    retryCount: number;
+  } {
     return {
       errorCount: this.errorCount,
       lastError: this.lastError,
-      retryCount: this.retryCount
+      retryCount: this.retryCount,
     };
   }
 

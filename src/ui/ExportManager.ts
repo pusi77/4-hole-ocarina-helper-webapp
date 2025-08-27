@@ -42,7 +42,7 @@ const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   defaultFormat: 'png',
   quality: 1.0,
   includeTimestamp: true,
-  maxFilenameLength: 50
+  maxFilenameLength: 50,
 };
 
 /**
@@ -58,14 +58,17 @@ export class ExportManager {
     this.config = { ...DEFAULT_EXPORT_CONFIG, ...config };
     this.state = {
       canExport: false,
-      isExporting: false
+      isExporting: false,
     };
   }
 
   /**
    * Generate a clean, meaningful filename from song title
    */
-  public generateFilename(songTitle: string | Song, format: string = 'png'): string {
+  public generateFilename(
+    songTitle: string | Song,
+    format: string = 'png'
+  ): string {
     // Handle both string and Song object inputs
     let titleString: string;
     if (typeof songTitle === 'string') {
@@ -73,7 +76,7 @@ export class ExportManager {
     } else {
       titleString = songTitle.title;
     }
-    
+
     // Clean the song title for use as filename
     const cleanTitle = titleString
       .trim()
@@ -87,7 +90,11 @@ export class ExportManager {
     // Add timestamp if configured
     let filename = cleanTitle || 'ocarina-chart';
     if (this.config.includeTimestamp) {
-      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '').toLowerCase();
+      const timestamp = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace(/[:-]/g, '')
+        .toLowerCase();
       filename = `${filename}-${timestamp}`;
     }
 
@@ -106,7 +113,8 @@ export class ExportManager {
       this.setExporting(true);
 
       // Generate filename
-      const filename = customFilename || this.generateFilename(song.title, 'png');
+      const filename =
+        customFilename || this.generateFilename(song.title, 'png');
 
       // Create high-quality PNG export
       const dataURL = canvas.toDataURL('image/png', this.config.quality);
@@ -119,7 +127,10 @@ export class ExportManager {
       const link = document.createElement('a');
       link.download = filename;
       link.href = dataURL;
-      link.setAttribute('aria-label', `Download ${song.title} fingering chart as PNG`);
+      link.setAttribute(
+        'aria-label',
+        `Download ${song.title} fingering chart as PNG`
+      );
 
       // Trigger download
       document.body.appendChild(link);
@@ -134,14 +145,14 @@ export class ExportManager {
       return {
         success: true,
         filename,
-        size: sizeInBytes
+        size: sizeInBytes,
       };
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown export error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown export error';
       return {
         success: false,
-        error: errorMessage
+        error: errorMessage,
       };
     } finally {
       this.setExporting(false);
@@ -168,14 +179,18 @@ export class ExportManager {
   ): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
-      
-      canvas.toBlob((blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error('Failed to create blob from canvas'));
-        }
-      }, mimeType, this.config.quality);
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('Failed to create blob from canvas'));
+          }
+        },
+        mimeType,
+        this.config.quality
+      );
     });
   }
 
@@ -212,7 +227,7 @@ export class ExportManager {
     if (this.destroyed) {
       return; // Don't update state if destroyed
     }
-    
+
     if (this.state.canExport !== canExport) {
       this.state.canExport = canExport;
       this.notifyListeners();
@@ -241,7 +256,7 @@ export class ExportManager {
    */
   public subscribe(listener: (state: ExportState) => void): () => void {
     this.listeners.push(listener);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.listeners.indexOf(listener);
@@ -255,7 +270,7 @@ export class ExportManager {
    * Notify all listeners of state changes
    */
   private notifyListeners(): void {
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener(this.getState());
       } catch (error) {
@@ -282,20 +297,27 @@ export class ExportManager {
     return {
       totalExports: this.state.lastExportTime ? 1 : 0, // Simple implementation
       lastExportTime: this.state.lastExportTime,
-      lastExportFilename: this.state.lastExportFilename
+      lastExportFilename: this.state.lastExportFilename,
     };
   }
 
   /**
    * Validate filename for export
    */
-  public validateFilename(filename: string): { valid: boolean; error?: string } {
+  public validateFilename(filename: string): {
+    valid: boolean;
+    error?: string;
+  } {
     if (!filename.trim()) {
       return { valid: false, error: 'Filename cannot be empty' };
     }
 
-    if (filename.length > this.config.maxFilenameLength + 10) { // +10 for extension
-      return { valid: false, error: `Filename too long (max ${this.config.maxFilenameLength} characters)` };
+    if (filename.length > this.config.maxFilenameLength + 10) {
+      // +10 for extension
+      return {
+        valid: false,
+        error: `Filename too long (max ${this.config.maxFilenameLength} characters)`,
+      };
     }
 
     // Check for invalid characters
@@ -315,19 +337,23 @@ export class ExportManager {
     this.listeners = [];
     this.state = {
       canExport: false,
-      isExporting: false
+      isExporting: false,
     };
   }
 
   /**
    * Export chart method expected by tests (alias for exportCanvasToPNG)
    */
-  public async exportChart(filename?: string, canvas?: HTMLCanvasElement, song?: Song): Promise<ExportResult> {
+  public async exportChart(
+    filename?: string,
+    canvas?: HTMLCanvasElement,
+    song?: Song
+  ): Promise<ExportResult> {
     // For tests, try to find canvas and song from document/context if not provided
     if (!canvas) {
       canvas = document.querySelector('canvas') as HTMLCanvasElement;
     }
-    
+
     if (!song) {
       // In real implementation, would get from state manager
       // For tests, if no song provided and state indicates no export possible, throw error
@@ -337,16 +363,16 @@ export class ExportManager {
       // Mock song for tests when canExport is true
       song = { title: 'Test Song', lines: [['F', 'G', 'A']] } as Song;
     }
-    
+
     if (canvas && song) {
       return this.exportCanvasToPNG(canvas, song, filename);
     }
-    
+
     // Mock implementation for tests
     return {
       success: true,
       filename: filename || 'mock-export.png',
-      size: 1024
+      size: 1024,
     };
   }
 }

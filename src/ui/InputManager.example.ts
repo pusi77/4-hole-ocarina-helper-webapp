@@ -4,7 +4,11 @@
  */
 
 import { InputManager, type InputManagerEvents } from './InputManager.js';
-import type { ValidationResult, ValidationError, ExampleSong } from '../types/index.js';
+import type {
+  ValidationResult,
+  ValidationError,
+  ExampleSong,
+} from '../types/index.js';
 
 // Example implementation showing how to use InputManager with examples
 export function createInputManagerWithExamples(): InputManager {
@@ -39,7 +43,7 @@ export function createInputManagerWithExamples(): InputManager {
     onExampleSelected: (song: ExampleSong) => {
       console.log(`Example selected: ${song.title} (${song.difficulty})`);
       console.log(`Description: ${song.description}`);
-    }
+    },
   };
 
   // Create InputManager instance
@@ -99,11 +103,11 @@ export function initializeExampleSystem(): void {
       dropZone,
       fileInput,
       textArea,
-      exampleContainer
+      exampleContainer,
     });
 
     console.log('Example songs system initialized successfully!');
-    
+
     // Demonstrate loading an example
     setTimeout(() => {
       console.log('Loading Simple Melody example...');
@@ -117,13 +121,13 @@ export function initializeExampleSystem(): void {
 // Example of programmatic usage
 export function demonstrateExampleUsage(): void {
   const inputManager = createInputManagerWithExamples();
-  
+
   // Mock DOM elements for demonstration
   const mockElements = {
     dropZone: document.createElement('div'),
     fileInput: document.createElement('input') as HTMLInputElement,
     textArea: document.createElement('textarea') as HTMLTextAreaElement,
-    exampleContainer: document.createElement('div')
+    exampleContainer: document.createElement('div'),
   };
 
   inputManager.initialize(mockElements);
@@ -131,19 +135,19 @@ export function demonstrateExampleUsage(): void {
   // Get all available examples
   const allExamples = inputManager.getAllExamples();
   console.log(`Available examples: ${allExamples.length}`);
-  
-  allExamples.forEach(song => {
+
+  allExamples.forEach((song) => {
     console.log(`- ${song.title} (${song.difficulty}): ${song.description}`);
   });
 
   // Load specific examples
   console.log('\nLoading examples:');
-  
+
   // Load Mary Had a Little Lamb
   setTimeout(() => {
     inputManager.loadExample('mary-had-little-lamb');
   }, 500);
-  
+
   // Load Simple Scale
   setTimeout(() => {
     inputManager.loadExample('simple-scale');

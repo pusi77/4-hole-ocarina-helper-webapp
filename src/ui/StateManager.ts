@@ -3,20 +3,14 @@
  * Provides reactive state updates and manages application-wide state
  */
 
-import type { 
-  AppState, 
-  StateListener, 
+import type {
+  AppState,
+  StateListener,
   StateUpdate,
-  UIState 
+  UIState,
 } from '../types/state.js';
-import type { 
-  Song, 
-  ChartConfig 
-} from '../types/core.js';
-import type { 
-  ValidationResult, 
-  ValidationError 
-} from '../types/validation.js';
+import type { Song, ChartConfig } from '../types/core.js';
+import type { ValidationResult, ValidationError } from '../types/validation.js';
 
 /**
  * Default chart configuration
@@ -30,8 +24,8 @@ const DEFAULT_CHART_CONFIG: ChartConfig = {
     background: '#ffffff',
     holeFilled: '#333333',
     holeEmpty: '#ffffff',
-    text: '#333333'
-  }
+    text: '#333333',
+  },
 };
 
 /**
@@ -45,7 +39,7 @@ const DEFAULT_APP_STATE: AppState = {
   isLoading: false,
   errors: [],
   isExporting: false,
-  lastUpdateTimestamp: new Date()
+  lastUpdateTimestamp: new Date(),
 };
 
 /**
@@ -57,8 +51,8 @@ const DEFAULT_UI_STATE: UIState = {
   isPreviewCollapsed: false,
   canvasSize: {
     width: DEFAULT_CHART_CONFIG.canvasWidth,
-    height: DEFAULT_CHART_CONFIG.canvasHeight
-  }
+    height: DEFAULT_CHART_CONFIG.canvasHeight,
+  },
 };
 
 /**
@@ -74,7 +68,7 @@ export class StateManager {
     this.appState = { ...DEFAULT_APP_STATE, ...initialState };
     this.uiState = { ...DEFAULT_UI_STATE };
     this.listeners = new Set();
-    
+
     // Initialize responsive state
     this.updateResponsiveState();
     this.setupResizeListener();
@@ -104,20 +98,20 @@ export class StateManager {
     }
 
     this.isUpdating = true;
-    
+
     try {
       const previousState = { ...this.appState };
-      
+
       // Apply updates
       this.appState = {
         ...this.appState,
         ...update,
-        lastUpdateTimestamp: new Date()
+        lastUpdateTimestamp: new Date(),
       };
-      
+
       // Validate state consistency
       this.validateStateConsistency();
-      
+
       // Notify listeners if state actually changed
       if (this.hasStateChanged(previousState, this.appState)) {
         this.notifyListeners();
@@ -133,17 +127,19 @@ export class StateManager {
   updateUIState(update: Partial<UIState>): void {
     const previousUIState = { ...this.uiState };
     this.uiState = { ...this.uiState, ...update };
-    
+
     // Update canvas size in app state if it changed
-    if (update.canvasSize && 
-        (update.canvasSize.width !== previousUIState.canvasSize.width ||
-         update.canvasSize.height !== previousUIState.canvasSize.height)) {
+    if (
+      update.canvasSize &&
+      (update.canvasSize.width !== previousUIState.canvasSize.width ||
+        update.canvasSize.height !== previousUIState.canvasSize.height)
+    ) {
       this.updateState({
         chartConfig: {
           ...this.appState.chartConfig,
           canvasWidth: update.canvasSize.width,
-          canvasHeight: update.canvasSize.height
-        }
+          canvasHeight: update.canvasSize.height,
+        },
       });
     }
   }
@@ -153,7 +149,7 @@ export class StateManager {
    */
   subscribe(listener: StateListener): () => void {
     this.listeners.add(listener);
-    
+
     // Return unsubscribe function
     return () => {
       this.listeners.delete(listener);
@@ -166,11 +162,11 @@ export class StateManager {
   setSong(song: Song | null): void {
     this.updateState({
       currentSong: song,
-      validationResult: song 
+      validationResult: song
         ? { isValid: true, errors: [], warnings: [] }
         : { isValid: false, errors: [], warnings: [] },
       // If setting a song, also set input text from metadata if available
-      inputText: song?.metadata?.originalInput || this.appState.inputText
+      inputText: song?.metadata?.originalInput || this.appState.inputText,
     });
   }
 
@@ -185,10 +181,10 @@ export class StateManager {
    * Set validation result
    */
   setValidationResult(result: ValidationResult): void {
-    this.updateState({ 
+    this.updateState({
       validationResult: result,
       // Clear current song if validation failed
-      currentSong: result.isValid ? this.appState.currentSong : null
+      currentSong: result.isValid ? this.appState.currentSong : null,
     });
   }
 
@@ -226,7 +222,7 @@ export class StateManager {
    */
   updateChartConfig(config: Partial<ChartConfig>): void {
     this.updateState({
-      chartConfig: { ...this.appState.chartConfig, ...config }
+      chartConfig: { ...this.appState.chartConfig, ...config },
     });
   }
 
@@ -244,9 +240,11 @@ export class StateManager {
    * Check if export is possible
    */
   canExport(): boolean {
-    return this.appState.currentSong !== null && 
-           !this.appState.isLoading && 
-           !this.appState.isExporting;
+    return (
+      this.appState.currentSong !== null &&
+      !this.appState.isLoading &&
+      !this.appState.isExporting
+    );
   }
 
   /**
@@ -274,7 +272,9 @@ export class StateManager {
    * Check if there are validation errors
    */
   hasErrors(): boolean {
-    return !this.appState.validationResult.isValid || this.appState.errors.length > 0;
+    return (
+      !this.appState.validationResult.isValid || this.appState.errors.length > 0
+    );
   }
 
   /**
@@ -303,7 +303,7 @@ export class StateManager {
       textLength: this.appState.inputText.length,
       isLoading: this.appState.isLoading,
       isExporting: this.appState.isExporting,
-      isMobile: this.uiState.isMobile
+      isMobile: this.uiState.isMobile,
     };
   }
 
@@ -313,16 +313,20 @@ export class StateManager {
   private validateStateConsistency(): void {
     // If validation failed, ensure no current song
     if (!this.appState.validationResult.isValid && this.appState.currentSong) {
-      console.warn('StateManager: Inconsistent state - validation failed but song exists');
+      console.warn(
+        'StateManager: Inconsistent state - validation failed but song exists'
+      );
       this.appState.currentSong = null;
     }
-    
+
     // Ensure canvas size matches chart config
-    if (this.uiState.canvasSize.width !== this.appState.chartConfig.canvasWidth ||
-        this.uiState.canvasSize.height !== this.appState.chartConfig.canvasHeight) {
+    if (
+      this.uiState.canvasSize.width !== this.appState.chartConfig.canvasWidth ||
+      this.uiState.canvasSize.height !== this.appState.chartConfig.canvasHeight
+    ) {
       this.uiState.canvasSize = {
         width: this.appState.chartConfig.canvasWidth,
-        height: this.appState.chartConfig.canvasHeight
+        height: this.appState.chartConfig.canvasHeight,
       };
     }
   }
@@ -339,7 +343,8 @@ export class StateManager {
       previous.isLoading !== current.isLoading ||
       previous.isExporting !== current.isExporting ||
       previous.errors.length !== current.errors.length ||
-      JSON.stringify(previous.chartConfig) !== JSON.stringify(current.chartConfig)
+      JSON.stringify(previous.chartConfig) !==
+        JSON.stringify(current.chartConfig)
     );
   }
 
@@ -348,8 +353,8 @@ export class StateManager {
    */
   private notifyListeners(): void {
     const currentState = this.getState();
-    
-    this.listeners.forEach(listener => {
+
+    this.listeners.forEach((listener) => {
       try {
         listener(currentState);
       } catch (error) {
@@ -363,7 +368,7 @@ export class StateManager {
    */
   private updateResponsiveState(): void {
     const isMobile = window.innerWidth < 768; // Standard mobile breakpoint
-    
+
     if (this.uiState.isMobile !== isMobile) {
       this.updateUIState({ isMobile });
     }
@@ -374,14 +379,14 @@ export class StateManager {
    */
   private setupResizeListener(): void {
     let resizeTimeout: ReturnType<typeof setTimeout>;
-    
+
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         this.updateResponsiveState();
       }, 150);
     };
-    
+
     window.addEventListener('resize', handleResize);
   }
 

@@ -8,7 +8,7 @@ export type {
   Song,
   FingeringPattern,
   ChartConfig,
-  LayoutInfo
+  LayoutInfo,
 } from './core.js';
 
 // Validation types
@@ -17,29 +17,20 @@ export type {
   ValidationWarning,
   ValidationResult,
   SupportedNote,
-  AcceptedFileType
+  AcceptedFileType,
 } from './validation.js';
 
 export {
   ErrorType,
   WarningType,
   SUPPORTED_NOTES,
-  ACCEPTED_FILE_TYPES
+  ACCEPTED_FILE_TYPES,
 } from './validation.js';
 
 // State management types
-export type {
-  AppState,
-  UIState,
-  StateListener,
-  StateUpdate
-} from './state.js';
+export type { AppState, UIState, StateListener, StateUpdate } from './state.js';
 
 // Example songs types
-export type {
-  ExampleSong
-} from './examples.js';
+export type { ExampleSong } from './examples.js';
 
-export {
-  ExampleCategory
-} from './examples.js';
+export { ExampleCategory } from './examples.js';

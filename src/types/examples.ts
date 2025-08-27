@@ -20,5 +20,5 @@ export enum ExampleCategory {
   SCALES = 'scales',
   SIMPLE_SONGS = 'simple_songs',
   POPULAR_SONGS = 'popular_songs',
-  TESTS = 'tests'
+  TESTS = 'tests',
 }

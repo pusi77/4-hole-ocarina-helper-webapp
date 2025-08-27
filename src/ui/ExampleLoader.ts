@@ -1,16 +1,22 @@
 /**
- * ExampleLoader - Manages example song loading and selection
+ * import {
+  // @ts-ignore - imported for completeness  
+  EXAMPLE_SONGS as _EXAMPLE_SONGS,
+  getAllExampleSongs,
+  getExamplesByCategory,
+  getExampleById
+} from '../data/exampleSongs.js';Loader - Manages example song loading and selection
  * Provides interface for loading pre-defined example songs
  */
 
 import type { ExampleSong } from '../types/examples.js';
 import { ExampleCategory } from '../types/examples.js';
 import {
-  // @ts-ignore - imported for completeness  
-  EXAMPLE_SONGS,
+  // @ts-ignore - imported for completeness
+  EXAMPLE_SONGS as _EXAMPLE_SONGS,
   getAllExampleSongs,
   getExamplesByCategory,
-  getExampleById
+  getExampleById,
 } from '../data/exampleSongs.js';
 
 /**
@@ -41,13 +47,16 @@ export class ExampleLoader {
   private container: HTMLElement | null = null;
   private currentCategory: ExampleCategory | null = null;
 
-  constructor(events: ExampleLoaderEvents, config?: Partial<ExampleLoaderConfig>) {
+  constructor(
+    events: ExampleLoaderEvents,
+    config?: Partial<ExampleLoaderConfig>
+  ) {
     this.events = events;
     this.config = {
       showCategories: true,
       showDifficulty: true,
       showDescriptions: true,
-      ...config
+      ...config,
     };
   }
 
@@ -107,7 +116,7 @@ export class ExampleLoader {
     select.appendChild(allOption);
 
     // Add category options
-    Object.values(ExampleCategory).forEach(category => {
+    Object.values(ExampleCategory).forEach((category) => {
       const option = document.createElement('option');
       option.value = category;
       option.textContent = this.formatCategoryName(category);
@@ -122,7 +131,7 @@ export class ExampleLoader {
 
     select.addEventListener('change', (e) => {
       const target = e.target as HTMLSelectElement;
-      this.currentCategory = target.value as ExampleCategory || null;
+      this.currentCategory = (target.value as ExampleCategory) || null;
       this.renderSongList();
     });
 
@@ -147,7 +156,7 @@ export class ExampleLoader {
     songList.className = 'song-list';
 
     // Get songs to display
-    const songs = this.currentCategory 
+    const songs = this.currentCategory
       ? getExamplesByCategory(this.currentCategory)
       : getAllExampleSongs();
 
@@ -157,7 +166,7 @@ export class ExampleLoader {
       emptyMessage.textContent = 'No examples available in this category.';
       songList.appendChild(emptyMessage);
     } else {
-      songs.forEach(song => {
+      songs.forEach((song) => {
         const songItem = this.createSongItem(song);
         songList.appendChild(songItem);
       });
@@ -213,7 +222,7 @@ export class ExampleLoader {
   public loadExample(songId: string): void {
     try {
       const song = getExampleById(songId);
-      
+
       if (!song) {
         this.events.onError(`Example song with ID "${songId}" not found`);
         return;
@@ -221,13 +230,12 @@ export class ExampleLoader {
 
       // Notify that example was selected
       this.events.onExampleSelected(song);
-      
+
       // Load the notation
       this.events.onExampleLoaded(song.notation, song.title);
-      
+
       // Add visual feedback
       this.highlightSelectedSong(songId);
-      
     } catch (error) {
       this.events.onError(
         `Failed to load example "${songId}": ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -242,13 +250,17 @@ export class ExampleLoader {
     if (!this.container) return;
 
     // Remove previous selection
-    const previousSelected = this.container.querySelector('.song-item.selected');
+    const previousSelected = this.container.querySelector(
+      '.song-item.selected'
+    );
     if (previousSelected) {
       previousSelected.classList.remove('selected');
     }
 
     // Add selection to current item
-    const currentItem = this.container.querySelector(`[data-song-id="${songId}"]`);
+    const currentItem = this.container.querySelector(
+      `[data-song-id="${songId}"]`
+    );
     if (currentItem) {
       currentItem.classList.add('selected');
     }
@@ -260,7 +272,7 @@ export class ExampleLoader {
   private formatCategoryName(category: ExampleCategory): string {
     return category
       .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   }
 
@@ -290,10 +302,12 @@ export class ExampleLoader {
    */
   public setCategory(category: ExampleCategory | null): void {
     this.currentCategory = category;
-    
+
     // Update UI if rendered
     if (this.container) {
-      const select = this.container.querySelector('.category-select') as HTMLSelectElement;
+      const select = this.container.querySelector(
+        '.category-select'
+      ) as HTMLSelectElement;
       if (select) {
         select.value = category || '';
       }
@@ -306,7 +320,7 @@ export class ExampleLoader {
    */
   public updateConfig(config: Partial<ExampleLoaderConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     // Re-render if container exists
     if (this.container) {
       this.render();

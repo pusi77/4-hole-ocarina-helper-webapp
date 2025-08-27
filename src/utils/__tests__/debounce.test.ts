@@ -36,7 +36,7 @@ describe('debounce', () => {
 
     debouncedFn('first');
     vi.advanceTimersByTime(50);
-    
+
     debouncedFn('second');
     vi.advanceTimersByTime(50);
     expect(mockFn).not.toHaveBeenCalled();

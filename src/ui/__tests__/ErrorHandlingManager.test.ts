@@ -5,7 +5,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ErrorHandlingManager } from '../ErrorHandlingManager.js';
 import { ErrorType, WarningType } from '../../types/index.js';
-import type { ValidationError, ValidationWarning, ValidationResult } from '../../types/index.js';
+import type {
+  ValidationError,
+  ValidationWarning,
+  ValidationResult,
+} from '../../types/index.js';
 
 describe('ErrorHandlingManager', () => {
   let errorManager: ErrorHandlingManager;
@@ -23,10 +27,14 @@ describe('ErrorHandlingManager', () => {
     const validResult: ValidationResult = {
       isValid: true,
       errors: [],
-      warnings: []
+      warnings: [],
     };
 
-    const result = await errorManager.handleValidationResult(validResult, {}, 'test input');
+    const result = await errorManager.handleValidationResult(
+      validResult,
+      {},
+      'test input'
+    );
     expect(result.handled).toBe(true);
   });
 
@@ -35,16 +43,20 @@ describe('ErrorHandlingManager', () => {
       type: ErrorType.UNSUPPORTED_NOTE,
       message: 'Unsupported note',
       line: 1,
-      suggestions: ['F', 'G', 'A']
+      suggestions: ['F', 'G', 'A'],
     };
 
     const errorResult: ValidationResult = {
       isValid: false,
       errors: [error],
-      warnings: []
+      warnings: [],
     };
 
-    const result = await errorManager.handleValidationResult(errorResult, {}, 'test input');
+    const result = await errorManager.handleValidationResult(
+      errorResult,
+      {},
+      'test input'
+    );
     expect(result.handled).toBe(true);
   });
 
@@ -52,16 +64,20 @@ describe('ErrorHandlingManager', () => {
     const warning: ValidationWarning = {
       type: WarningType.NOTE_CONVERSION,
       message: 'Note converted',
-      line: 1
+      line: 1,
     };
 
     const warningResult: ValidationResult = {
       isValid: true,
       errors: [],
-      warnings: [warning]
+      warnings: [warning],
     };
 
-    const result = await errorManager.handleValidationResult(warningResult, {}, 'test input');
+    const result = await errorManager.handleValidationResult(
+      warningResult,
+      {},
+      'test input'
+    );
     expect(result.handled).toBe(true);
   });
 

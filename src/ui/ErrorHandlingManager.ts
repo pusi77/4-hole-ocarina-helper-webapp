@@ -3,16 +3,28 @@
  * Integrates notification system, error highlighting, and error recovery
  */
 
-import type { 
-  ValidationError, 
-  ValidationWarning, 
-  ValidationResult, 
-  AppState 
+import type {
+  ValidationError,
+  ValidationWarning,
+  ValidationResult,
+  AppState,
 } from '../types/index.js';
 import { ErrorType, WarningType } from '../types/index.js';
-import { NotificationSystem, type NotificationEvents, type NotificationConfig } from './NotificationSystem.js';
-import { ErrorHighlighter, type ErrorHighlighterEvents, type HighlightConfig } from './ErrorHighlighter.js';
-import { ErrorRecoverySystem, type ErrorRecoveryEvents, type ErrorRecoveryConfig } from './ErrorRecoverySystem.js';
+import {
+  NotificationSystem,
+  type NotificationEvents,
+  type NotificationConfig,
+} from './NotificationSystem.js';
+import {
+  ErrorHighlighter,
+  type ErrorHighlighterEvents,
+  type HighlightConfig,
+} from './ErrorHighlighter.js';
+import {
+  ErrorRecoverySystem,
+  type ErrorRecoveryEvents,
+  type ErrorRecoveryConfig,
+} from './ErrorRecoverySystem.js';
 
 /**
  * Configuration for the error handling manager
@@ -34,9 +46,15 @@ export interface ErrorHandlingEvents {
   onErrorHandled?: (error: ValidationError, recovered: boolean) => void;
   onWarningHandled?: (warning: ValidationWarning) => void;
   onSuccessNotification?: (title: string, message: string) => void;
-  onStateRecovered?: (previousState: Partial<AppState>, newState: Partial<AppState>) => void;
+  onStateRecovered?: (
+    previousState: Partial<AppState>,
+    newState: Partial<AppState>
+  ) => void;
   onRecoveryFailed?: (error: ValidationError, attempts: number) => void;
-  onValidationImproved?: (previousResult: ValidationResult, newResult: ValidationResult) => void;
+  onValidationImproved?: (
+    previousResult: ValidationResult,
+    newResult: ValidationResult
+  ) => void;
 }
 
 /**
@@ -79,7 +97,7 @@ export class ErrorHandlingManager {
       enableWarningNotifications: true,
       enableErrorRecovery: true,
       enableStatePreservation: true,
-      ...config
+      ...config,
     };
 
     this.stats = this.initializeStats();
@@ -91,7 +109,7 @@ export class ErrorHandlingManager {
       },
       onNotificationRemoved: (notificationId) => {
         console.log('Notification removed:', notificationId);
-      }
+      },
     };
 
     this.notificationSystem = new NotificationSystem(
@@ -102,7 +120,11 @@ export class ErrorHandlingManager {
     // Initialize error recovery system
     const recoveryEvents: ErrorRecoveryEvents = {
       onRecoveryAttempted: (attempt) => {
-        console.log('Recovery attempted:', attempt.strategy, attempt.description);
+        console.log(
+          'Recovery attempted:',
+          attempt.strategy,
+          attempt.description
+        );
       },
       onRecoverySucceeded: (attempt, newState) => {
         this.handleRecoverySuccess(attempt, newState);
@@ -115,7 +137,7 @@ export class ErrorHandlingManager {
       },
       onErrorBoundaryTriggered: (error, context) => {
         this.handleUnexpectedError(error, context);
-      }
+      },
     };
 
     this.errorRecoverySystem = new ErrorRecoverySystem(
@@ -147,13 +169,12 @@ export class ErrorHandlingManager {
     validationResult: ValidationResult,
     currentState: Partial<AppState>,
     inputText: string
-  ): Promise<{ 
-    handled: boolean; 
-    recovered: boolean; 
-    newState?: Partial<AppState>; 
-    newInputText?: string 
+  ): Promise<{
+    handled: boolean;
+    recovered: boolean;
+    newState?: Partial<AppState>;
+    newInputText?: string;
   }> {
-    
     // Update current state tracking
     this.currentState = currentState;
     this.currentInputText = inputText;
@@ -177,7 +198,7 @@ export class ErrorHandlingManager {
         currentState,
         inputText
       );
-      
+
       recovered = recoveryResult.recovered;
       if (recovered) {
         newState = recoveryResult.newState || currentState;
@@ -191,8 +212,14 @@ export class ErrorHandlingManager {
     }
 
     // Show success notification if validation improved
-    if (this.lastValidationResult && this.hasValidationImproved(this.lastValidationResult, validationResult)) {
-      this.showValidationImprovement(this.lastValidationResult, validationResult);
+    if (
+      this.lastValidationResult &&
+      this.hasValidationImproved(this.lastValidationResult, validationResult)
+    ) {
+      this.showValidationImprovement(
+        this.lastValidationResult,
+        validationResult
+      );
     }
 
     // Backup state if valid and state preservation is enabled
@@ -215,7 +242,7 @@ export class ErrorHandlingManager {
       handled: true,
       recovered,
       newState: recovered ? newState : undefined,
-      newInputText: recovered ? newInputText : undefined
+      newInputText: recovered ? newInputText : undefined,
     };
   }
 
@@ -226,8 +253,12 @@ export class ErrorHandlingManager {
     error: ValidationError,
     currentState: Partial<AppState>,
     inputText: string
-  ): Promise<{ handled: boolean; recovered: boolean; newState?: Partial<AppState>; newInputText?: string }> {
-    
+  ): Promise<{
+    handled: boolean;
+    recovered: boolean;
+    newState?: Partial<AppState>;
+    newInputText?: string;
+  }> {
     // Show error notification
     const notificationId = this.notificationSystem.showError(error);
 
@@ -250,7 +281,7 @@ export class ErrorHandlingManager {
 
         // Show recovery success notification
         this.showRecoverySuccess(error, recoveryResult);
-        
+
         // Hide the original error notification
         this.notificationSystem.hide(notificationId);
       }
@@ -271,16 +302,24 @@ export class ErrorHandlingManager {
     errors: ValidationError[],
     currentState: Partial<AppState>,
     inputText: string
-  ): Promise<{ recovered: boolean; newState?: Partial<AppState>; newInputText?: string }> {
-    
+  ): Promise<{
+    recovered: boolean;
+    newState?: Partial<AppState>;
+    newInputText?: string;
+  }> {
     // Try to recover from the first critical error
-    const criticalError = errors.find(e => this.isCriticalError(e)) || errors[0];
-    
-    const result = await this.handleError(criticalError, currentState, inputText);
-    
+    const criticalError =
+      errors.find((e) => this.isCriticalError(e)) || errors[0];
+
+    const result = await this.handleError(
+      criticalError,
+      currentState,
+      inputText
+    );
+
     // Show remaining errors if recovery didn't fix everything
     if (!result.recovered || errors.length > 1) {
-      errors.forEach(error => {
+      errors.forEach((error) => {
         if (error !== criticalError) {
           this.notificationSystem.showError(error);
         }
@@ -290,7 +329,7 @@ export class ErrorHandlingManager {
     return {
       recovered: result.recovered,
       newState: result.newState,
-      newInputText: result.newInputText
+      newInputText: result.newInputText,
     };
   }
 
@@ -300,9 +339,9 @@ export class ErrorHandlingManager {
   private handleWarnings(warnings: ValidationWarning[]): void {
     if (!this.config.enableWarningNotifications) return;
 
-    warnings.forEach(warning => {
+    warnings.forEach((warning) => {
       this.notificationSystem.showWarning(warning);
-      
+
       if (this.events.onWarningHandled) {
         this.events.onWarningHandled(warning);
       }
@@ -312,11 +351,15 @@ export class ErrorHandlingManager {
   /**
    * Show success notification
    */
-  showSuccess(title: string, message: string, options?: { autoHide?: boolean; hideDelay?: number }): void {
+  showSuccess(
+    title: string,
+    message: string,
+    options?: { autoHide?: boolean; hideDelay?: number }
+  ): void {
     if (!this.config.enableSuccessNotifications) return;
 
     this.notificationSystem.showSuccess(title, message, options);
-    
+
     if (this.events.onSuccessNotification) {
       this.events.onSuccessNotification(title, message);
     }
@@ -325,19 +368,28 @@ export class ErrorHandlingManager {
   /**
    * Show info notification
    */
-  showInfo(title: string, message: string, options?: { autoHide?: boolean; hideDelay?: number }): void {
+  showInfo(
+    title: string,
+    message: string,
+    options?: { autoHide?: boolean; hideDelay?: number }
+  ): void {
     this.notificationSystem.showInfo(title, message, options);
   }
 
   /**
    * Handle note conversion success
    */
-  handleNoteConversion(originalNote: string, convertedNote: string, count: number = 1): void {
+  handleNoteConversion(
+    originalNote: string,
+    convertedNote: string,
+    count: number = 1
+  ): void {
     const title = 'Notes Converted';
-    const message = count === 1 
-      ? `Converted '${originalNote}' to '${convertedNote}'`
-      : `Converted ${count} instances of '${originalNote}' to '${convertedNote}'`;
-    
+    const message =
+      count === 1
+        ? `Converted '${originalNote}' to '${convertedNote}'`
+        : `Converted ${count} instances of '${originalNote}' to '${convertedNote}'`;
+
     this.showSuccess(title, message, { autoHide: true, hideDelay: 3000 });
   }
 
@@ -347,7 +399,7 @@ export class ErrorHandlingManager {
   handleExportSuccess(filename: string, size: number): void {
     const title = 'Export Successful';
     const message = `Chart exported as "${filename}" (${this.formatFileSize(size)})`;
-    
+
     this.showSuccess(title, message, { autoHide: true, hideDelay: 4000 });
   }
 
@@ -357,7 +409,7 @@ export class ErrorHandlingManager {
   handleFileUploadSuccess(filename: string, lineCount: number): void {
     const title = 'File Loaded';
     const message = `Successfully loaded "${filename}" (${lineCount} lines)`;
-    
+
     this.showSuccess(title, message, { autoHide: true, hideDelay: 3000 });
   }
 
@@ -385,7 +437,11 @@ export class ErrorHandlingManager {
   /**
    * Restore state from backup
    */
-  restoreStateFromBackup(backupId: string): { success: boolean; state?: Partial<AppState>; inputText?: string } {
+  restoreStateFromBackup(backupId: string): {
+    success: boolean;
+    state?: Partial<AppState>;
+    inputText?: string;
+  } {
     return this.errorRecoverySystem.restoreState(backupId);
   }
 
@@ -407,8 +463,10 @@ export class ErrorHandlingManager {
    * Check if there are any active errors
    */
   hasActiveErrors(): boolean {
-    return this.notificationSystem.hasErrors() || 
-           (this.errorHighlighter?.hasErrors() ?? false);
+    return (
+      this.notificationSystem.hasErrors() ||
+      (this.errorHighlighter?.hasErrors() ?? false)
+    );
   }
 
   /**
@@ -420,10 +478,13 @@ export class ErrorHandlingManager {
         // Show detailed error information
         this.showInfo(
           `Line ${highlight.lineNumber} ${highlight.type}`,
-          highlight.message + (highlight.suggestions ? '\n\nSuggestions:\n• ' + highlight.suggestions.join('\n• ') : ''),
+          highlight.message +
+            (highlight.suggestions
+              ? '\n\nSuggestions:\n• ' + highlight.suggestions.join('\n• ')
+              : ''),
           { autoHide: false }
         );
-      }
+      },
     };
 
     this.errorHighlighter = new ErrorHighlighter(
@@ -436,9 +497,12 @@ export class ErrorHandlingManager {
   /**
    * Handle recovery success
    */
-  private handleRecoverySuccess(attempt: any, newState: Partial<AppState>): void {
+  private handleRecoverySuccess(
+    attempt: any,
+    newState: Partial<AppState>
+  ): void {
     this.stats.successfulRecoveries++;
-    
+
     this.showSuccess(
       'Auto-Recovery Successful',
       `${attempt.description} completed successfully`,
@@ -455,7 +519,7 @@ export class ErrorHandlingManager {
    */
   private handleRecoveryFailure(attempt: any): void {
     this.stats.failedRecoveries++;
-    
+
     if (this.events.onRecoveryFailed) {
       this.events.onRecoveryFailed(attempt.error, this.stats.failedRecoveries);
     }
@@ -466,24 +530,29 @@ export class ErrorHandlingManager {
    */
   private handleUnexpectedError(error: Error, context: string): void {
     console.error('Unexpected error:', error, 'Context:', context);
-    
+
     this.notificationSystem.show({
       type: 'error' as any,
       title: 'Unexpected Error',
       message: `An unexpected error occurred: ${error.message}`,
       autoHide: false,
-      actions: [{
-        label: 'Reload Page',
-        action: () => window.location.reload(),
-        style: 'primary'
-      }]
+      actions: [
+        {
+          label: 'Reload Page',
+          action: () => window.location.reload(),
+          style: 'primary',
+        },
+      ],
     });
   }
 
   /**
    * Show recovery success notification
    */
-  private showRecoverySuccess(error: ValidationError, _recoveryResult: any): void {
+  private showRecoverySuccess(
+    error: ValidationError,
+    _recoveryResult: any
+  ): void {
     this.showSuccess(
       'Problem Fixed',
       `Automatically resolved: ${error.message}`,
@@ -494,7 +563,10 @@ export class ErrorHandlingManager {
   /**
    * Check if validation has improved
    */
-  private hasValidationImproved(previous: ValidationResult, current: ValidationResult): boolean {
+  private hasValidationImproved(
+    previous: ValidationResult,
+    current: ValidationResult
+  ): boolean {
     if (!previous.isValid && current.isValid) return true;
     if (previous.errors.length > current.errors.length) return true;
     if (previous.warnings.length > current.warnings.length) return true;
@@ -504,13 +576,15 @@ export class ErrorHandlingManager {
   /**
    * Show validation improvement notification
    */
-  private showValidationImprovement(previous: ValidationResult, current: ValidationResult): void {
+  private showValidationImprovement(
+    previous: ValidationResult,
+    current: ValidationResult
+  ): void {
     if (!previous.isValid && current.isValid) {
-      this.showSuccess(
-        'Validation Passed',
-        'All errors have been resolved!',
-        { autoHide: true, hideDelay: 3000 }
-      );
+      this.showSuccess('Validation Passed', 'All errors have been resolved!', {
+        autoHide: true,
+        hideDelay: 3000,
+      });
     } else if (previous.errors.length > current.errors.length) {
       const fixed = previous.errors.length - current.errors.length;
       this.showSuccess(
@@ -532,7 +606,7 @@ export class ErrorHandlingManager {
     return [
       ErrorType.EMPTY_INPUT,
       ErrorType.INVALID_FILE_TYPE,
-      ErrorType.RENDERING_ERROR
+      ErrorType.RENDERING_ERROR,
     ].includes(error.type);
   }
 
@@ -545,13 +619,13 @@ export class ErrorHandlingManager {
 
     // Update most common error type
     if (validationResult.errors.length > 0) {
-      const errorTypes = validationResult.errors.map(e => e.type);
+      const errorTypes = validationResult.errors.map((e) => e.type);
       this.stats.mostCommonErrorType = this.getMostCommon(errorTypes);
     }
 
     // Update most common warning type
     if (validationResult.warnings.length > 0) {
-      const warningTypes = validationResult.warnings.map(w => w.type);
+      const warningTypes = validationResult.warnings.map((w) => w.type);
       this.stats.mostCommonWarningType = this.getMostCommon(warningTypes);
     }
   }
@@ -561,15 +635,15 @@ export class ErrorHandlingManager {
    */
   private getMostCommon<T>(items: T[]): T | null {
     if (items.length === 0) return null;
-    
+
     const counts = new Map<T, number>();
-    items.forEach(item => {
+    items.forEach((item) => {
       counts.set(item, (counts.get(item) || 0) + 1);
     });
 
     let mostCommon = items[0];
     let maxCount = 0;
-    
+
     counts.forEach((count, item) => {
       if (count > maxCount) {
         maxCount = count;
@@ -592,7 +666,7 @@ export class ErrorHandlingManager {
       failedRecoveries: 0,
       averageRecoveryTime: 0,
       mostCommonErrorType: null,
-      mostCommonWarningType: null
+      mostCommonWarningType: null,
     };
   }
 
@@ -601,11 +675,11 @@ export class ErrorHandlingManager {
    */
   private formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   }
 
@@ -614,15 +688,15 @@ export class ErrorHandlingManager {
    */
   updateConfig(config: Partial<ErrorHandlingConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     if (config.notifications) {
       this.notificationSystem.updateConfig(config.notifications);
     }
-    
+
     if (config.highlighting && this.errorHighlighter) {
       this.errorHighlighter.updateConfig(config.highlighting);
     }
-    
+
     if (config.recovery) {
       this.errorRecoverySystem.updateConfig(config.recovery);
     }
@@ -633,13 +707,13 @@ export class ErrorHandlingManager {
    */
   destroy(): void {
     this.notificationSystem.destroy();
-    
+
     if (this.errorHighlighter) {
       this.errorHighlighter.destroy();
     }
-    
+
     this.errorRecoverySystem.destroy();
-    
+
     // Clear references
     this.currentState = null;
     this.lastValidationResult = null;

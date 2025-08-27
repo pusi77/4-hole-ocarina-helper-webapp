@@ -17,16 +17,16 @@ canvas {
   /* Prevent unnecessary repaints */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
-  
+
   /* Hardware acceleration */
   transform: translateZ(0);
-  
+
   /* Prevent selection to avoid repaints */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  
+
   /* Optimize for performance */
   pointer-events: auto;
 }
@@ -41,8 +41,12 @@ canvas {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Optimize text rendering */
@@ -57,8 +61,9 @@ canvas {
 
 /* Performance-optimized transitions */
 .notification {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .notification.entering {
@@ -109,7 +114,7 @@ canvas {
     backdrop-filter: none; /* Remove expensive blur on mobile */
     background: rgba(255, 255, 255, 0.95);
   }
-  
+
   /* Optimize touch interactions */
   .touch-target {
     /* Larger touch targets for better performance */
@@ -118,7 +123,7 @@ canvas {
     /* Optimize touch response */
     touch-action: manipulation;
   }
-  
+
   /* Reduce animation complexity on mobile */
   .loading-spinner {
     animation-duration: 2s; /* Slower animation for better performance */
@@ -139,11 +144,11 @@ canvas {
   .loading-spinner {
     animation: none;
   }
-  
+
   .notification {
     transition: none;
   }
-  
+
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -207,7 +212,7 @@ canvas {
   .notification {
     display: none !important;
   }
-  
+
   /* Optimize canvas for printing */
   canvas {
     image-rendering: auto;
@@ -289,11 +294,12 @@ textarea {
 }
 
 @keyframes errorPulse {
-  0%, 100% { 
-    background-color: transparent; 
+  0%,
+  100% {
+    background-color: transparent;
   }
-  50% { 
-    background-color: rgba(220, 53, 69, 0.1); 
+  50% {
+    background-color: rgba(220, 53, 69, 0.1);
   }
 }
 
@@ -303,10 +309,11 @@ textarea {
 }
 
 @keyframes successFlash {
-  0%, 100% { 
-    background-color: transparent; 
+  0%,
+  100% {
+    background-color: transparent;
   }
-  50% { 
-    background-color: rgba(40, 167, 69, 0.1); 
+  50% {
+    background-color: rgba(40, 167, 69, 0.1);
   }
 }

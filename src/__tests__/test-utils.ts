@@ -30,12 +30,14 @@ export const createMockElement = (tagName: string): any => {
     previousSibling: null,
     nodeType: 1, // Element node
     ownerDocument: {
-      createElement: vi.fn().mockImplementation((tag: string) => createMockElement(tag)),
+      createElement: vi
+        .fn()
+        .mockImplementation((tag: string) => createMockElement(tag)),
       getElementById: vi.fn(),
       head: {
         appendChild: vi.fn(),
-      }
-    }
+      },
+    },
   };
 
   // Set up parentElement with proper methods
@@ -76,7 +78,7 @@ export const createMockElement = (tagName: string): any => {
 
 export const createMockElements = () => {
   const mockTextArea = createMockElement('textarea') as HTMLTextAreaElement;
-  
+
   const mockCanvas = {
     ...createMockElement('canvas'),
     width: 800,
