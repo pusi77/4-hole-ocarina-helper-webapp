@@ -7,7 +7,7 @@
 global.window = {
   devicePixelRatio: 1,
   addEventListener: () => {},
-  dispatchEvent: () => {}
+  dispatchEvent: () => {},
 };
 
 global.document = {
@@ -22,12 +22,12 @@ global.document = {
           arc: () => {},
           fill: () => {},
           stroke: () => {},
-          fillText: () => {}
+          fillText: () => {},
         }),
         width: 800,
         height: 600,
         style: {},
-        toDataURL: () => 'data:image/png;base64,test'
+        toDataURL: () => 'data:image/png;base64,test',
       };
     }
     if (tag === 'textarea') {
@@ -38,7 +38,7 @@ global.document = {
         addEventListener: () => {},
         removeEventListener: () => {},
         focus: () => {},
-        dispatchEvent: () => {}
+        dispatchEvent: () => {},
       };
     }
     if (tag === 'div') {
@@ -48,28 +48,28 @@ global.document = {
         innerHTML: '',
         appendChild: () => {},
         removeChild: () => {},
-        insertBefore: () => {}
+        insertBefore: () => {},
       };
     }
     if (tag === 'a') {
       return {
         download: '',
         href: '',
-        click: () => {}
+        click: () => {},
       };
     }
     return {
       style: {},
       addEventListener: () => {},
-      removeEventListener: () => {}
+      removeEventListener: () => {},
     };
   },
   body: {
     appendChild: () => {},
-    removeChild: () => {}
+    removeChild: () => {},
   },
   querySelector: () => null,
-  getElementById: () => null
+  getElementById: () => null,
 };
 
 // Test the debounce function
@@ -77,7 +77,9 @@ console.log('Testing debounce function...');
 const { debounce } = require('./src/utils/debounce.js');
 
 let callCount = 0;
-const testFn = () => { callCount++; };
+const testFn = () => {
+  callCount++;
+};
 const debouncedFn = debounce(testFn, 100);
 
 // Call multiple times quickly
@@ -87,15 +89,23 @@ debouncedFn();
 
 // Should only be called once after delay
 setTimeout(() => {
-  console.log(`Debounce test: Expected 1 call, got ${callCount} calls - ${callCount === 1 ? 'PASS' : 'FAIL'}`);
+  console.log(
+    `Debounce test: Expected 1 call, got ${callCount} calls - ${callCount === 1 ? 'PASS' : 'FAIL'}`
+  );
 }, 150);
 
-console.log('Real-time text input and preview functionality has been implemented!');
+console.log(
+  'Real-time text input and preview functionality has been implemented!'
+);
 console.log('');
 console.log('Components implemented:');
-console.log('✓ RealTimeTextInput - Text area with real-time parsing and validation');
+console.log(
+  '✓ RealTimeTextInput - Text area with real-time parsing and validation'
+);
 console.log('✓ PreviewController - Live chart preview updates');
-console.log('✓ RealTimeApp - Main controller orchestrating text input and preview');
+console.log(
+  '✓ RealTimeApp - Main controller orchestrating text input and preview'
+);
 console.log('✓ debounce utility - Smooth performance with debounced updates');
 console.log('');
 console.log('Features implemented:');

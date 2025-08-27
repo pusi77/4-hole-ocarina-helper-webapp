@@ -23,7 +23,7 @@ export default [
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         getComputedStyle: 'readonly',
-        
+
         // Timing functions
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
@@ -31,11 +31,11 @@ export default [
         clearInterval: 'readonly',
         requestAnimationFrame: 'readonly',
         cancelAnimationFrame: 'readonly',
-        
+
         // Performance API
         performance: 'readonly',
         PerformanceObserver: 'readonly',
-        
+
         // HTML Elements
         HTMLElement: 'readonly',
         HTMLDivElement: 'readonly',
@@ -45,17 +45,17 @@ export default [
         HTMLTextAreaElement: 'readonly',
         HTMLSelectElement: 'readonly',
         NodeListOf: 'readonly',
-        
+
         // Canvas & Graphics
         CanvasRenderingContext2D: 'readonly',
         ImageData: 'readonly',
-        
+
         // File APIs
         FileList: 'readonly',
         File: 'readonly',
         FileReader: 'readonly',
         Blob: 'readonly',
-        
+
         // Events
         Event: 'readonly',
         DragEvent: 'readonly',
@@ -64,14 +64,14 @@ export default [
         FocusEvent: 'readonly',
         ClipboardEvent: 'readonly',
         CustomEvent: 'readonly',
-        
+
         // Observers
         ResizeObserver: 'readonly',
         MutationObserver: 'readonly',
-        
+
         // Service Workers
         ServiceWorkerRegistration: 'readonly',
-        
+
         // Test globals
         testUtils: 'readonly',
       },
@@ -82,10 +82,13 @@ export default [
     },
     rules: {
       'prettier/prettier': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_'
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off', // Allow any types for flexibility
       'no-unused-vars': 'off', // Use TypeScript version instead

@@ -17,21 +17,22 @@ const RUNTIME_CACHE_CONFIG = {
   // Cache images for 30 days
   images: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    maxEntries: 50
+    maxEntries: 50,
   },
   // Cache API responses for 1 hour
   api: {
     maxAge: 60 * 60 * 1000, // 1 hour
-    maxEntries: 100
-  }
+    maxEntries: 100,
+  },
 };
 
 // Install event - cache static files
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
-  
+
   event.waitUntil(
-    caches.open(STATIC_CACHE_NAME)
+    caches
+      .open(STATIC_CACHE_NAME)
       .then((cache) => {
         console.log('Caching static files...');
         return cache.addAll(STATIC_FILES);
@@ -50,9 +51,10 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...');
-  
+
   event.waitUntil(
-    caches.keys()
+    caches
+      .keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
@@ -76,17 +78,17 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip non-GET requests
   if (request.method !== 'GET') {
     return;
   }
-  
+
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) {
     return;
   }
-  
+
   // Handle different types of requests
   if (isStaticAsset(request)) {
     event.respondWith(handleStaticAsset(request));
@@ -111,8 +113,10 @@ function isStaticAsset(request) {
  * Check if request is for an image
  */
 function isImageRequest(request) {
-  return request.destination === 'image' || 
-         request.url.match(/\.(png|jpg|jpeg|gif|webp|svg)$/);
+  return (
+    request.destination === 'image' ||
+    request.url.match(/\.(png|jpg|jpeg|gif|webp|svg)$/)
+  );
 }
 
 /**
@@ -133,28 +137,28 @@ async function handleStaticAsset(request) {
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // Fetch from network and cache
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
       const cache = await caches.open(STATIC_CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.error('Failed to handle static asset:', error);
-    
+
     // Return cached version if available
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // Return offline fallback
-    return new Response('Asset not available offline', { 
+    return new Response('Asset not available offline', {
       status: 503,
-      statusText: 'Service Unavailable'
+      statusText: 'Service Unavailable',
     });
   }
 }
@@ -166,12 +170,15 @@ async function handleImageRequest(request) {
   try {
     const cache = await caches.open(CACHE_NAME);
     const cachedResponse = await cache.match(request);
-    
+
     // Check if cached response is still valid
-    if (cachedResponse && !isExpired(cachedResponse, RUNTIME_CACHE_CONFIG.images.maxAge)) {
+    if (
+      cachedResponse &&
+      !isExpired(cachedResponse, RUNTIME_CACHE_CONFIG.images.maxAge)
+    ) {
       return cachedResponse;
     }
-    
+
     // Fetch from network
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
@@ -181,27 +188,27 @@ async function handleImageRequest(request) {
         statusText: networkResponse.statusText,
         headers: {
           ...Object.fromEntries(networkResponse.headers.entries()),
-          'sw-cached-at': Date.now().toString()
-        }
+          'sw-cached-at': Date.now().toString(),
+        },
       });
-      
+
       cache.put(request, responseToCache.clone());
       return networkResponse;
     }
-    
+
     // Return cached version if network fails
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     throw new Error('Network request failed');
   } catch (error) {
     console.error('Failed to handle image request:', error);
-    
+
     // Return a placeholder or error response
-    return new Response('Image not available', { 
+    return new Response('Image not available', {
       status: 503,
-      statusText: 'Service Unavailable'
+      statusText: 'Service Unavailable',
     });
   }
 }
@@ -221,45 +228,51 @@ async function handleAPIRequest(request) {
         statusText: networkResponse.statusText,
         headers: {
           ...Object.fromEntries(networkResponse.headers.entries()),
-          'sw-cached-at': Date.now().toString()
-        }
+          'sw-cached-at': Date.now().toString(),
+        },
       });
-      
+
       cache.put(request, responseToCache.clone());
       return networkResponse;
     }
-    
+
     throw new Error('Network request failed');
   } catch (error) {
     console.error('API request failed, trying cache:', error);
-    
+
     // Fallback to cache
     const cache = await caches.open(CACHE_NAME);
     const cachedResponse = await cache.match(request);
-    
-    if (cachedResponse && !isExpired(cachedResponse, RUNTIME_CACHE_CONFIG.api.maxAge)) {
+
+    if (
+      cachedResponse &&
+      !isExpired(cachedResponse, RUNTIME_CACHE_CONFIG.api.maxAge)
+    ) {
       // Add header to indicate this is from cache
       const response = new Response(cachedResponse.body, {
         status: cachedResponse.status,
         statusText: cachedResponse.statusText,
         headers: {
           ...Object.fromEntries(cachedResponse.headers.entries()),
-          'x-served-from': 'cache'
-        }
+          'x-served-from': 'cache',
+        },
       });
-      
+
       return response;
     }
-    
+
     // Return error response
-    return new Response(JSON.stringify({ 
-      error: 'Service unavailable',
-      message: 'Unable to fetch data. Please check your connection.'
-    }), {
-      status: 503,
-      statusText: 'Service Unavailable',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Service unavailable',
+        message: 'Unable to fetch data. Please check your connection.',
+      }),
+      {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 }
 
@@ -272,37 +285,40 @@ async function handleNavigationRequest(request) {
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       // Fetch updated version in background
-      fetch(request).then(async (networkResponse) => {
-        if (networkResponse.ok) {
-          const cache = await caches.open(STATIC_CACHE_NAME);
-          cache.put(request, networkResponse);
-        }
-      }).catch(() => {
-        // Ignore background fetch errors
-      });
-      
+      fetch(request)
+        .then(async (networkResponse) => {
+          if (networkResponse.ok) {
+            const cache = await caches.open(STATIC_CACHE_NAME);
+            cache.put(request, networkResponse);
+          }
+        })
+        .catch(() => {
+          // Ignore background fetch errors
+        });
+
       return cachedResponse;
     }
-    
+
     // Fetch from network
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
       const cache = await caches.open(STATIC_CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.error('Navigation request failed:', error);
-    
+
     // Try to return cached index.html for SPA routing
     const cachedIndex = await caches.match('/index.html');
     if (cachedIndex) {
       return cachedIndex;
     }
-    
+
     // Return offline page
-    return new Response(`
+    return new Response(
+      `
       <!DOCTYPE html>
       <html>
         <head>
@@ -353,11 +369,13 @@ async function handleNavigationRequest(request) {
           </div>
         </body>
       </html>
-    `, {
-      status: 503,
-      statusText: 'Service Unavailable',
-      headers: { 'Content-Type': 'text/html' }
-    });
+    `,
+      {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: { 'Content-Type': 'text/html' },
+      }
+    );
   }
 }
 
@@ -369,7 +387,7 @@ function isExpired(response, maxAge) {
   if (!cachedAt) {
     return true; // Consider expired if no timestamp
   }
-  
+
   const age = Date.now() - parseInt(cachedAt, 10);
   return age > maxAge;
 }
@@ -381,14 +399,14 @@ async function cleanupExpiredEntries() {
   try {
     const cache = await caches.open(CACHE_NAME);
     const requests = await cache.keys();
-    
+
     const deletePromises = requests.map(async (request) => {
       const response = await cache.match(request);
       if (response && isExpired(response, RUNTIME_CACHE_CONFIG.images.maxAge)) {
         return cache.delete(request);
       }
     });
-    
+
     await Promise.all(deletePromises);
     console.log('Expired cache entries cleaned up');
   } catch (error) {
@@ -402,22 +420,22 @@ setInterval(cleanupExpiredEntries, 60 * 60 * 1000); // Every hour
 // Handle messages from the main thread
 self.addEventListener('message', (event) => {
   const { type, payload } = event.data;
-  
+
   switch (type) {
     case 'SKIP_WAITING':
       self.skipWaiting();
       break;
-      
+
     case 'GET_VERSION':
       event.ports[0].postMessage({ version: CACHE_NAME });
       break;
-      
+
     case 'CLEAR_CACHE':
       caches.delete(CACHE_NAME).then(() => {
         event.ports[0].postMessage({ success: true });
       });
       break;
-      
+
     default:
       console.log('Unknown message type:', type);
   }

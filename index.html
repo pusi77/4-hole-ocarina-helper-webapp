@@ -3,47 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-    <meta name="description" content="Generate visual fingering charts for 4-hole ocarinas from text-based song notation. Supports notes F, G, A, Bb, C, D, E with real-time preview and PNG export." />
-    <meta name="keywords" content="ocarina, fingering chart, music, notation, 4-hole ocarina, song charts" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <meta
+      name="description"
+      content="Generate visual fingering charts for 4-hole ocarinas from text-based song notation. Supports notes F, G, A, Bb, C, D, E with real-time preview and PNG export."
+    />
+    <meta
+      name="keywords"
+      content="ocarina, fingering chart, music, notation, 4-hole ocarina, song charts"
+    />
     <meta name="author" content="Ocarina Chart Generator" />
     <meta name="theme-color" content="#3182ce" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Ocarina Fingering Chart Generator" />
-    <meta property="og:description" content="Generate visual fingering charts for 4-hole ocarinas from text-based song notation" />
-    
+    <meta
+      property="og:description"
+      content="Generate visual fingering charts for 4-hole ocarinas from text-based song notation"
+    />
+
     <!-- Twitter -->
     <meta property="twitter:card" content="summary" />
-    <meta property="twitter:title" content="Ocarina Fingering Chart Generator" />
-    <meta property="twitter:description" content="Generate visual fingering charts for 4-hole ocarinas from text-based song notation" />
-    
+    <meta
+      property="twitter:title"
+      content="Ocarina Fingering Chart Generator"
+    />
+    <meta
+      property="twitter:description"
+      content="Generate visual fingering charts for 4-hole ocarinas from text-based song notation"
+    />
+
     <title>Ocarina Fingering Chart Generator - 4-Hole Ocarina Charts</title>
   </head>
   <body>
     <div id="app">
-      <div class="app-container">        
+      <div class="app-container">
         <header class="app-header" role="banner">
           <h1>Ocarina Fingering Chart Generator</h1>
-          <p class="app-description">Enter your song notation below to generate fingering charts for 4-hole ocarinas</p>
+          <p class="app-description">
+            Enter your song notation below to generate fingering charts for
+            4-hole ocarinas
+          </p>
           <div class="instructions">
-            <p>Supported notes: F, G, A, Bb, C, D, E | Enter title and notation separately</p>
+            <p>
+              Supported notes: F, G, A, Bb, C, D, E | Enter title and notation
+              separately
+            </p>
             <p class="keyboard-shortcuts-hint">
               <small>Press <kbd>Alt+H</kbd> for keyboard shortcuts</small>
             </p>
           </div>
         </header>
-        
+
         <main id="main-content" class="app-main" role="main">
           <section class="input-section" aria-labelledby="input-heading">
             <h2 id="input-heading">Song Input</h2>
             <div class="input-content">
               <div class="title-input-container">
                 <label for="song-title" class="input-label">Song Title:</label>
-                <input 
-                  type="text" 
-                  id="song-title" 
+                <input
+                  type="text"
+                  id="song-title"
                   class="song-title-input"
                   placeholder="Enter song title..."
                   aria-describedby="title-help"
@@ -52,57 +76,98 @@
                   Enter the title for your song chart.
                 </div>
               </div>
-              
+
               <div class="text-input-container">
-                <label for="song-input" class="input-label">Song Notation:</label>
-                <textarea 
-                  id="song-input" 
+                <label for="song-input" class="input-label"
+                  >Song Notation:</label
+                >
+                <textarea
+                  id="song-input"
                   class="song-textarea"
                   aria-describedby="input-help"
                   spellcheck="false"
                   placeholder="Enter your song notation here...&#10;&#10;Example:&#10;F G A F&#10;G A C D"
                 ></textarea>
                 <div id="input-help" class="input-help">
-                  Enter note sequences line by line. Supported notes are F, G, A, Bb, C, D, E.
+                  Enter note sequences line by line. Supported notes are F, G,
+                  A, Bb, C, D, E.
                 </div>
               </div>
-              
-              <div class="validation-messages" aria-live="polite" aria-atomic="true"></div>
-              <div class="notification-container" aria-live="polite" aria-atomic="false" role="status"></div>
-              
+
+              <div
+                class="validation-messages"
+                aria-live="polite"
+                aria-atomic="true"
+              ></div>
+              <div
+                class="notification-container"
+                aria-live="polite"
+                aria-atomic="false"
+                role="status"
+              ></div>
+
               <div class="input-controls">
-                <button id="clear-btn" class="btn btn-secondary" aria-describedby="clear-help" title="Clear all input (Ctrl+L)">
+                <button
+                  id="clear-btn"
+                  class="btn btn-secondary"
+                  aria-describedby="clear-help"
+                  title="Clear all input (Ctrl+L)"
+                >
                   Clear
                 </button>
-                <div id="clear-help" class="sr-only">Clear all input text. Keyboard shortcut: Ctrl+L</div>
-                
-                <button id="example-btn" class="btn btn-secondary" aria-describedby="example-help" title="Load example song (Ctrl+E)">
+                <div id="clear-help" class="sr-only">
+                  Clear all input text. Keyboard shortcut: Ctrl+L
+                </div>
+
+                <button
+                  id="example-btn"
+                  class="btn btn-secondary"
+                  aria-describedby="example-help"
+                  title="Load example song (Ctrl+E)"
+                >
                   Load Example
                 </button>
-                <div id="example-help" class="sr-only">Load an example song to see how notation works. Keyboard shortcut: Ctrl+E</div>
+                <div id="example-help" class="sr-only">
+                  Load an example song to see how notation works. Keyboard
+                  shortcut: Ctrl+E
+                </div>
               </div>
             </div>
           </section>
-          
+
           <section class="preview-section" aria-labelledby="preview-heading">
             <h2 id="preview-heading">Chart Preview</h2>
             <div class="preview-content">
-              <div class="canvas-container" role="img" aria-labelledby="chart-description">
-                <canvas 
-                  id="chart-canvas" 
+              <div
+                class="canvas-container"
+                role="img"
+                aria-labelledby="chart-description"
+              >
+                <canvas
+                  id="chart-canvas"
                   class="chart-canvas"
                   aria-label="Ocarina fingering chart preview"
                 ></canvas>
                 <div id="chart-description" class="sr-only">
-                  Visual representation of ocarina fingering patterns for the entered song notation
+                  Visual representation of ocarina fingering patterns for the
+                  entered song notation
                 </div>
               </div>
-              
+
               <div class="preview-controls">
-                <button id="export-btn" class="btn btn-primary" disabled aria-describedby="export-help" title="Export chart as PNG (Ctrl+S)">
+                <button
+                  id="export-btn"
+                  class="btn btn-primary"
+                  disabled
+                  aria-describedby="export-help"
+                  title="Export chart as PNG (Ctrl+S)"
+                >
                   Export PNG
                 </button>
-                <div id="export-help" class="sr-only">Download the current chart as a PNG image. Keyboard shortcut: Ctrl+S</div>
+                <div id="export-help" class="sr-only">
+                  Download the current chart as a PNG image. Keyboard shortcut:
+                  Ctrl+S
+                </div>
               </div>
             </div>
           </section>

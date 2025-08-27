@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   test: {
@@ -14,16 +14,16 @@ export default defineConfig({
         'src/__tests__/',
         '**/*.d.ts',
         '**/*.config.*',
-        '**/coverage/**'
+        '**/coverage/**',
       ],
       thresholds: {
         global: {
           branches: 85,
           functions: 95,
           lines: 90,
-          statements: 90
-        }
-      }
+          statements: 90,
+        },
+      },
     },
     testTimeout: 10000,
     hookTimeout: 10000,
@@ -37,7 +37,7 @@ export default defineConfig({
     reporters: ['default', 'json', 'html'],
     outputFile: {
       json: './test-results/results.json',
-      html: './test-results/index.html'
-    }
+      html: './test-results/index.html',
+    },
   },
-})
+});

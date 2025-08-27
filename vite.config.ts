@@ -14,36 +14,33 @@ export default defineConfig({
       output: {
         manualChunks: {
           // Core functionality
-          'core': [
-            './src/core/FingeringEngine.ts',
-            './src/core/NoteParser.ts'
-          ],
+          core: ['./src/core/FingeringEngine.ts', './src/core/NoteParser.ts'],
           // UI components
-          'ui': [
+          ui: [
             './src/ui/UIController.ts',
             './src/ui/StateManager.ts',
             './src/ui/InputManager.ts',
-            './src/ui/RealTimeApp.ts'
+            './src/ui/RealTimeApp.ts',
           ],
           // Renderer and performance
-          'renderer': [
+          renderer: [
             './src/renderer/ChartRenderer.ts',
-            './src/renderer/PerformanceOptimizedRenderer.ts'
+            './src/renderer/PerformanceOptimizedRenderer.ts',
           ],
           // Utilities and performance monitoring
-          'utils': [
+          utils: [
             './src/utils/debounce.ts',
             './src/utils/MemoryMonitor.ts',
-            './src/ui/LoadingManager.ts'
+            './src/ui/LoadingManager.ts',
           ],
           // Example data and accessibility
-          'features': [
+          features: [
             './src/data/exampleSongs.ts',
             './src/ui/AccessibilityManager.ts',
             './src/ui/ErrorHandlingManager.ts',
             './src/ui/NotificationSystem.ts',
-            './src/ui/ErrorBoundary.ts'
-          ]
+            './src/ui/ErrorBoundary.ts',
+          ],
         },
         // Optimize asset naming for better caching
         assetFileNames: (assetInfo) => {
@@ -58,8 +55,8 @@ export default defineConfig({
           return `assets/[name]-[hash][extname]`;
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js'
-      }
+        entryFileNames: 'assets/js/[name]-[hash].js',
+      },
     },
     // Optimize bundle size
     chunkSizeWarningLimit: 500, // 500KB warning limit
@@ -68,17 +65,17 @@ export default defineConfig({
         drop_console: true, // Remove console.log in production
         drop_debugger: true,
         pure_funcs: ['console.log', 'console.debug', 'console.info'],
-        passes: 2 // Multiple passes for better compression
+        passes: 2, // Multiple passes for better compression
       },
       mangle: {
         safari10: true,
         properties: {
-          regex: /^_/ // Mangle private properties starting with _
-        }
+          regex: /^_/, // Mangle private properties starting with _
+        },
       },
       format: {
-        comments: false // Remove comments
-      }
+        comments: false, // Remove comments
+      },
     },
     // Enable CSS code splitting
     cssCodeSplit: true,
@@ -87,7 +84,7 @@ export default defineConfig({
     // Report compressed file sizes
     reportCompressedSize: true,
     // Enable brotli compression analysis
-    write: true
+    write: true,
   },
   resolve: {
     alias: {
@@ -101,26 +98,28 @@ export default defineConfig({
     ],
     exclude: [
       // Exclude large dependencies from pre-bundling if not needed immediately
-    ]
+    ],
   },
   // Enable tree shaking and define environment variables
   define: {
     __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
-    __BUILD_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
-    __BUILD_TIME__: JSON.stringify(new Date().toISOString())
+    __BUILD_VERSION__: JSON.stringify(
+      process.env.npm_package_version || '1.0.0'
+    ),
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
   },
   // CSS preprocessing
   css: {
     devSourcemap: true,
     preprocessorOptions: {
       // Add any CSS preprocessor options here if needed
-    }
+    },
   },
   // Preview configuration for production testing
   preview: {
     port: 4173,
     open: true,
-    cors: true
+    cors: true,
   },
   // Plugin configuration
   plugins: [
@@ -135,6 +134,6 @@ export default defineConfig({
       } else {
         return { relative: true };
       }
-    }
-  }
+    },
+  },
 });

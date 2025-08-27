@@ -5,12 +5,14 @@ This directory contains all the core TypeScript interfaces and types for the Oca
 ## Files Overview
 
 ### `core.ts`
+
 - **Song**: Represents a song with title, note sequences, and optional metadata
 - **FingeringPattern**: Defines fingering patterns for ocarina holes (4-hole layout)
 - **ChartConfig**: Configuration for canvas-based chart rendering
 - **LayoutInfo**: Layout calculations for responsive chart sizing
 
 ### `validation.ts`
+
 - **ErrorType**: Enumeration of all possible error types
 - **WarningType**: Enumeration of validation warning types
 - **ValidationError**: Detailed error information with context
@@ -21,16 +23,19 @@ This directory contains all the core TypeScript interfaces and types for the Oca
 - **ACCEPTED_FILE_TYPES**: Valid file types for upload
 
 ### `state.ts`
+
 - **AppState**: Main application state interface
 - **UIState**: UI-specific state for responsive layout
 - **StateListener**: Function type for state change listeners
 - **StateUpdate**: Partial state update type
 
 ### `examples.ts`
+
 - **ExampleSong**: Structure for pre-defined example songs
 - **ExampleCategory**: Categories for organizing examples
 
 ### `index.ts`
+
 - Central export file providing access to all types
 
 ## Requirements Coverage
@@ -50,19 +55,20 @@ import { ErrorType, SUPPORTED_NOTES } from './types/index.js';
 // Example usage
 const song: Song = {
   title: 'My Song',
-  lines: [['F', 'G', 'A']]
+  lines: [['F', 'G', 'A']],
 };
 
 const validation: ValidationResult = {
   isValid: true,
   errors: [],
-  warnings: []
+  warnings: [],
 };
 ```
 
 ## Type Safety
 
 All types are designed with strict TypeScript compliance and include:
+
 - Proper type annotations
 - Readonly arrays where appropriate
 - Optional properties with clear semantics
