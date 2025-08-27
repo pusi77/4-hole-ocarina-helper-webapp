@@ -415,7 +415,7 @@ export class PerformanceTester {
       
       // Simulate drawing patterns for each note
       song.lines.forEach((line: string[], lineIndex: number) => {
-        line.forEach((note: string, noteIndex: number) => {
+        line.forEach((_note: string, noteIndex: number) => {
           const x = noteIndex * 50;
           const y = lineIndex * 50;
           

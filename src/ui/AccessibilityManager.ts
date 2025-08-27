@@ -49,7 +49,9 @@ interface FocusableElement {
 export class AccessibilityManager {
   private config: AccessibilityConfig;
   private shortcuts: Map<string, KeyboardShortcut> = new Map();
+  // @ts-ignore - reserved for future focus management
   private focusableElements: FocusableElement[] = [];
+  // @ts-ignore - reserved for future focus management
   private currentFocusIndex: number = -1;
   private ariaLiveRegion: HTMLElement | null = null;
   private statusRegion: HTMLElement | null = null;
@@ -581,7 +583,7 @@ export class AccessibilityManager {
       this.exportButton
     ].filter(Boolean) as HTMLElement[];
 
-    elements.forEach((element, index) => {
+    elements.forEach((element, _index) => {
       if (element && !element.hasAttribute('tabindex')) {
         element.setAttribute('tabindex', '0');
       }
@@ -611,7 +613,7 @@ export class AccessibilityManager {
   /**
    * Handle focus out events
    */
-  private handleFocusOut(event: FocusEvent): void {
+  private handleFocusOut(_event: FocusEvent): void {
     // Could be used for cleanup or state management
   }
 
@@ -819,7 +821,7 @@ export class AccessibilityManager {
   /**
    * Check color contrast
    */
-  checkColorContrast(colors: { background: string; text: string; holeFilled: string; holeEmpty: string }): { ratio: number; passes: boolean; textBackground: number; holeBackground: number } {
+  checkColorContrast(_colors: { background: string; text: string; holeFilled: string; holeEmpty: string }): { ratio: number; passes: boolean; textBackground: number; holeBackground: number } {
     // Simplified contrast checking - in real implementation would use proper color analysis
     return {
       ratio: 4.5, // Mock passing ratio
@@ -974,7 +976,7 @@ export class AccessibilityManager {
   /**
    * Run accessibility audit
    */
-  runAccessibilityAudit(container: HTMLElement): { violations: any[]; passes: any[] } {
+  runAccessibilityAudit(_container: HTMLElement): { violations: any[]; passes: any[] } {
     // Mock audit results - in real implementation would use axe-core
     return {
       violations: [],
@@ -985,7 +987,7 @@ export class AccessibilityManager {
   /**
    * Check WCAG compliance
    */
-  checkWCAGCompliance(options: { level: string; guidelines: string[] }): { compliant: boolean; issues: any[]; failedGuidelines: any[] } {
+  checkWCAGCompliance(_options: { level: string; guidelines: string[] }): { compliant: boolean; issues: any[]; failedGuidelines: any[] } {
     // Mock WCAG compliance check
     return {
       compliant: true,

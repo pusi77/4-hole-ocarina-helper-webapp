@@ -158,7 +158,7 @@ export class ErrorBoundary {
   /**
    * Try different recovery strategies
    */
-  private async tryRecoveryStrategies(errorInfo: ErrorInfo): Promise<boolean> {
+  private async tryRecoveryStrategies(_errorInfo: ErrorInfo): Promise<boolean> {
     const strategies = [
       () => this.clearLocalStorage(),
       () => this.resetApplicationState(),

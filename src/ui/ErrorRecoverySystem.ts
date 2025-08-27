@@ -42,7 +42,32 @@ export interface RecoveryAttempt {
   error: ValidationError;
   strategy: RecoveryStrategy;
   success: boolean;
+  correctedText?: string;
+  failureReason?: string;
+  
+  // Recovery metrics
+  timeToRecover?: number;
+  
+  // Description for accessibility
   description: string;
+  
+  // Previous and new state for state recovery
+  previousState?: Partial<AppState>;
+  newState?: Partial<AppState>;
+  
+  // Suggestion offered to user
+  suggestion?: string;
+}
+
+/**
+ * Result of a recovery attempt
+ */
+export interface RecoveryResult {
+  success: boolean;
+  correctedText?: string;
+  newInputText?: string;
+  newState?: Partial<AppState>;
+  attempt?: RecoveryAttempt;
 }
 
 /**
@@ -117,19 +142,17 @@ export class ErrorRecoverySystem {
    * Attempt to recover from an error
    */
   async attemptRecovery(
-    error: ValidationError, 
-    currentState: Partial<AppState>,
+    error: ValidationError,
+    _currentState: Partial<AppState>,
     inputText: string
-  ): Promise<{ success: boolean; newState?: Partial<AppState>; newInputText?: string }> {
-    
-    if (!this.config.enableAutoRecovery || this.recoveryCount >= this.config.maxRecoveryAttempts) {
+  ): Promise<RecoveryResult> {    if (!this.config.enableAutoRecovery || this.recoveryCount >= this.config.maxRecoveryAttempts) {
       return { success: false };
     }
 
     this.recoveryCount++;
 
     // Determine recovery strategy based on error type
-    const strategy = this.determineRecoveryStrategy(error, currentState, inputText);
+    const strategy = this.determineRecoveryStrategy(error, _currentState, inputText);
     
     const attempt: RecoveryAttempt = {
       timestamp: new Date(),
@@ -140,7 +163,7 @@ export class ErrorRecoverySystem {
     };
 
     try {
-      const result = await this.executeRecoveryStrategy(strategy, error, currentState, inputText);
+      const result = await this.executeRecoveryStrategy(strategy, error, _currentState, inputText);
       
       attempt.success = result.success;
       this.recoveryAttempts.push(attempt);
@@ -151,7 +174,7 @@ export class ErrorRecoverySystem {
 
       if (result.success) {
         if (this.events.onRecoverySucceeded) {
-          this.events.onRecoverySucceeded(attempt, result.newState || currentState);
+          this.events.onRecoverySucceeded(attempt, result.newState || _currentState);
         }
         
         // Reset recovery count on successful recovery
@@ -335,7 +358,7 @@ export class ErrorRecoverySystem {
   private async executeRecoveryStrategy(
     strategy: RecoveryStrategy,
     error: ValidationError,
-    currentState: Partial<AppState>,
+    _currentState: Partial<AppState>,
     inputText: string
   ): Promise<{ success: boolean; newState?: Partial<AppState>; newInputText?: string }> {
     

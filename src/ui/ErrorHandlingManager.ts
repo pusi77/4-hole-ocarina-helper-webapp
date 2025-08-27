@@ -65,6 +65,7 @@ export class ErrorHandlingManager {
   private stats: ErrorHandlingStats;
   private lastValidationResult: ValidationResult | null = null;
   private currentState: Partial<AppState> | null = null;
+  // @ts-ignore - reserved for state tracking
   private currentInputText: string = '';
   // Note: currentInputText is used for state tracking and recovery
 

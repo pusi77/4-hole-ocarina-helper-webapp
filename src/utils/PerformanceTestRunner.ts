@@ -4,7 +4,7 @@
  */
 
 import { globalPerformanceTester, type PerformanceReport } from './PerformanceTester.js';
-import { globalMemoryMonitor, type MemoryUsage } from './MemoryMonitor.js';
+import { globalMemoryMonitor, type MemoryUsage as _MemoryUsage } from './MemoryMonitor.js';
 import { LoadingUtils } from '../ui/LoadingManager.js';
 
 export interface PerformanceTestConfig {

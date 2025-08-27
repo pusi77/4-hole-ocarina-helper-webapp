@@ -5,11 +5,12 @@
 
 import type { ExampleSong } from '../types/examples.js';
 import { ExampleCategory } from '../types/examples.js';
-import { 
-  EXAMPLE_SONGS, 
-  getAllExampleSongs, 
-  getExamplesByCategory, 
-  getExampleById 
+import {
+  // @ts-ignore - imported for completeness  
+  EXAMPLE_SONGS,
+  getAllExampleSongs,
+  getExamplesByCategory,
+  getExampleById
 } from '../data/exampleSongs.js';
 
 /**
